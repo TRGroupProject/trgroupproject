@@ -30,8 +30,8 @@ public class PomodoroServiceImpl implements PomodoroService {
     }
 
     @Override
-    public void updateTaskById(String uid, Long taskId, UserPomodoroTask task) {
-
+    public UserPomodoroTask updateTaskById(String uid, Long taskId, UserPomodoroTask task) {
+return null;
     }
 
     @Override

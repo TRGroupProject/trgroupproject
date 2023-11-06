@@ -16,7 +16,7 @@ public interface PomodoroService {
 
     URL getMusicUrl(String uid);
 
-    void updateTaskById(String uid, Long taskId, UserPomodoroTask task);
+    UserPomodoroTask updateTaskById(String uid, Long taskId, UserPomodoroTask task);
 
     UserPomodoroTask getTaskById(Long taskId);
 }

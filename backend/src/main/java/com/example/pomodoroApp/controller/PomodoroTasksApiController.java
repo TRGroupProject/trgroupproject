@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.security.sasl.AuthenticationException;
 import java.net.URL;
+import java.security.InvalidParameterException;
 import java.util.List;
 
 @RestController
@@ -38,7 +40,7 @@ public class PomodoroTasksApiController {
     // Get a list of all tasks from out database:
     //  if isCompleted = false then return tasks[] having a deadline date in the future and competedDateTime = null
     //  if isCompleted = true then return tasks[] having the completedDateTime field not null
-    public ResponseEntity<List<UserPomodoroTask>> getAllTasks(@RequestHeader("user") String uid, @RequestParam(name = "isCompleted", defaultValue = "false") String isCompletedParam) {
+    public ResponseEntity<List<UserPomodoroTask>> getAllTasks(@RequestHeader("user") String uid, @RequestParam(name = "isCompleted", defaultValue = "false") String isCompletedParam) throws RuntimeException {
 
         boolean isCompleted = Boolean.parseBoolean(isCompletedParam);
 
@@ -69,7 +71,6 @@ public class PomodoroTasksApiController {
     // Do we expect a task in the body, or a field to update?
     public ResponseEntity<UserPomodoroTask> updateTask(@RequestHeader("user") String uid, @PathVariable Long taskId, @RequestBody UserPomodoroTask task) {
 
-        pomodoroService.updateTaskById(uid, taskId, task);
-        return new ResponseEntity<UserPomodoroTask>(pomodoroService.getTaskById(taskId), HttpStatus.OK);
+        return new ResponseEntity<UserPomodoroTask> (pomodoroService.updateTaskById(uid, taskId, task), HttpStatus.OK);
     }
 }
