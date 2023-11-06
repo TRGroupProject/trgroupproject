@@ -1,6 +1,6 @@
 package com.example.pomodoroApp.controller;
 
-import com.example.pomodoroApp.model.PomodoroTask;
+import com.example.pomodoroApp.model.UserPomodoroTask;
 import com.example.pomodoroApp.service.PomodoroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,21 +38,21 @@ public class PomodoroTasksApiController {
     // Get a list of all tasks from out database:
     //  if isCompleted = false then return tasks[] having a deadline date in the future and competedDateTime = null
     //  if isCompleted = true then return tasks[] having the completedDateTime field not null
-    public ResponseEntity<List<PomodoroTask>> getAllTasks(@RequestHeader("user") String uid, @RequestParam(name = "isCompleted", defaultValue = "false") String isCompletedParam) {
+    public ResponseEntity<List<UserPomodoroTask>> getAllTasks(@RequestHeader("user") String uid, @RequestParam(name = "isCompleted", defaultValue = "false") String isCompletedParam) {
 
         boolean isCompleted = Boolean.parseBoolean(isCompletedParam);
 
-        List<PomodoroTask> tasks = pomodoroService.getAllTasks(uid, isCompleted);
-        return new ResponseEntity<List<PomodoroTask>>(tasks, HttpStatus.OK);
+        List<UserPomodoroTask> tasks = pomodoroService.getAllTasks(uid, isCompleted);
+        return new ResponseEntity<List<UserPomodoroTask>>(tasks, HttpStatus.OK);
     }
 
 
     @GetMapping(value = "/calendar")
     // Sync to google calendar and return updated list of tasks (using pomodoroService.getAllTasks(uid, false);
-    public ResponseEntity<List<PomodoroTask>> getSyncedTasks(@RequestHeader("authorization") String authorization, @RequestHeader("user") String uid) {
+    public ResponseEntity<List<UserPomodoroTask>> getSyncedTasks(@RequestHeader("authorization") String authorization, @RequestHeader("user") String uid) {
 
-        List<PomodoroTask> tasks = pomodoroService.synchAndGetAllTasks(authorization, uid);
-        return new ResponseEntity<List<PomodoroTask>>(tasks, HttpStatus.OK);
+        List<UserPomodoroTask> tasks = pomodoroService.synchAndGetAllTasks(authorization, uid);
+        return new ResponseEntity<List<UserPomodoroTask>>(tasks, HttpStatus.OK);
     }
 
 
@@ -67,9 +67,9 @@ public class PomodoroTasksApiController {
     @PatchMapping("/{taskId}")
     // Update the task in our database
     // Do we expect a task in the body, or a field to update?
-    public ResponseEntity<PomodoroTask> updateTask(@RequestHeader("user") String uid, @PathVariable Long taskId, @RequestBody PomodoroTask task) {
+    public ResponseEntity<UserPomodoroTask> updateTask(@RequestHeader("user") String uid, @PathVariable Long taskId, @RequestBody UserPomodoroTask task) {
 
         pomodoroService.updateTaskById(uid, taskId, task);
-        return new ResponseEntity<PomodoroTask>(pomodoroService.getTaskById(taskId), HttpStatus.OK);
+        return new ResponseEntity<UserPomodoroTask>(pomodoroService.getTaskById(taskId), HttpStatus.OK);
     }
 }
