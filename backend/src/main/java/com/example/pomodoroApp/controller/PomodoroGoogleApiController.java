@@ -22,26 +22,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RestController
-//@RequestMapping("/api/v1/tasks")
-public class PomodoroApiController {
+// @RequestMapping("/api/v1/tasks")
+public class PomodoroGoogleApiController {
 
     static final String GOOGLE_CALENDAR_URL = "https://www.googleapis.com/calendar/v3/calendars/primary/events";
-    static final int GOOGLE_REQUEST_TIMEOUT = 5;    // In seconds
+    static final int GOOGLE_REQUEST_TIMEOUT = 5; // In seconds
 
-    @GetMapping(value ="/")
+    @GetMapping(value = "/")
     public String welcome() {
         return "Welcome to the Pomodoro API";
     }
 
-
     @GetMapping("/uid")
-    public String  uid () {
+    public String uid() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
-
     @GetMapping("/user")
-    public String  user () {
+    public String user() {
         OAuth2User userDetails = (OAuth2User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         return userDetails.getAttributes().containsKey("name")
@@ -50,28 +48,33 @@ public class PomodoroApiController {
     }
 
     @GetMapping("/token")
-//    public OAuth2AccessToken index(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+    // public OAuth2AccessToken index(@RegisteredOAuth2AuthorizedClient("google")
+    // OAuth2AuthorizedClient authorizedClient) {
     public OAuth2AccessToken index(@RegisteredOAuth2AuthorizedClient() OAuth2AuthorizedClient authorizedClient) {
         return authorizedClient.getAccessToken();
     }
 
+    @GetMapping(value = "/events")
+    // public String secured (@RegisteredOAuth2AuthorizedClient("google")
+    // OAuth2AuthorizedClient authorizedClient) throws URISyntaxException,
+    // IOException, InterruptedException, ExecutionException, TimeoutException {
+    public String secured(@RegisteredOAuth2AuthorizedClient() OAuth2AuthorizedClient authorizedClient)
+            throws URISyntaxException, IOException, InterruptedException, ExecutionException, TimeoutException {
 
-    @GetMapping (value="/events")
-//    public String secured (@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) throws URISyntaxException, IOException, InterruptedException, ExecutionException, TimeoutException {
-    public String secured (@RegisteredOAuth2AuthorizedClient() OAuth2AuthorizedClient authorizedClient) throws URISyntaxException, IOException, InterruptedException, ExecutionException, TimeoutException {
-
-        // TODO ADD ERROR HANDLING - CATCH THE THROWN EXCEPTIONS, AND OTHER EXCEPTION TYPES
+        // TODO ADD ERROR HANDLING - CATCH THE THROWN EXCEPTIONS, AND OTHER EXCEPTION
+        // TYPES
         // TODO MOVE THIS TO SEPARATE FUNCTION
-        // TODO Parse the Json result, and extract the relevent event fields to match our model
+        // TODO Parse the Json result, and extract the relevent event fields to match
+        // our model
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String bearerToken = "Bearer " + authorizedClient.getAccessToken().getTokenValue();
-//        System.out.println("Bearer token:" + bearerToken);
+        // System.out.println("Bearer token:" + bearerToken);
         HttpRequest googleRequest = HttpRequest
                 .newBuilder(new URI(GOOGLE_CALENDAR_URL))
-                .header ("Authorization", bearerToken)
-                .timeout(Duration.of (GOOGLE_REQUEST_TIMEOUT, ChronoUnit.SECONDS))
+                .header("Authorization", bearerToken)
+                .timeout(Duration.of(GOOGLE_REQUEST_TIMEOUT, ChronoUnit.SECONDS))
                 .GET()
                 .build();
 
@@ -84,7 +87,8 @@ public class PomodoroApiController {
         String result = response.thenApply(HttpResponse::body).get(GOOGLE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 
         // change this to sendAsync
-//        HttpResponse<String> response = client.send (googleRequest, HttpResponse.BodyHandlers.ofString());
+        // HttpResponse<String> response = client.send (googleRequest,
+        // HttpResponse.BodyHandlers.ofString());
         System.out.println("response:" + result);
         return result;
     }
