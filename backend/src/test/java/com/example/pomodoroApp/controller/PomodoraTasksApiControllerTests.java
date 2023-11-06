@@ -13,9 +13,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.Assert;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -164,7 +166,6 @@ public class PomodoraTasksApiControllerTests {
 
         String musicURLString = "https://public.radio.co/playerapi/jquery.radiocoplayer.min.js";
         URL musicURL = new URL (musicURLString);
-        System.out.println("Music URL:" + musicURL);
 
         when(mockPomodoroServiceImpl.getMusicUrl(VALID_USER)).thenReturn(musicURL);
 
@@ -175,7 +176,7 @@ public class PomodoraTasksApiControllerTests {
         this.mockMvcController.perform(
                         MockMvcRequestBuilders.get("/api/v1/tasks/music/").header("user", VALID_USER))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string (musicURL.toString()));
+                .andExpect(MockMvcResultMatchers.content().string(String.format("\"%s\"", musicURLString)));
 
         // Invalid user in Header
         assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.getMusicUrl(INVALID_USER));
