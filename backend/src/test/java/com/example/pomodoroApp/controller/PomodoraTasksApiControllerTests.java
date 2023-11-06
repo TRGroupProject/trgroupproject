@@ -1,4 +1,4 @@
 package com.example.pomodoroApp.controller;
 
-public class PomodoraApiControllerTests {
+public class PomodoraTasksApiControllerTests {
 }
