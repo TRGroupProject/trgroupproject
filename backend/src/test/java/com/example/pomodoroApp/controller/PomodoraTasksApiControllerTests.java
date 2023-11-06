@@ -1,5 +1,6 @@
 package com.example.pomodoroApp.controller;
 
+import com.example.pomodoroApp.exceptions.InvalidTaskIdException;
 import com.example.pomodoroApp.exceptions.InvalidUserException;
 import com.example.pomodoroApp.model.UserPomodoroTask;
 import com.example.pomodoroApp.service.PomodoroServiceImpl;
@@ -135,7 +136,7 @@ public class PomodoraTasksApiControllerTests {
 
         when(mockPomodoroServiceImpl.updateTaskById (VALID_USER, task.getTaskId(), task)).thenReturn(task);
 
-        doThrow(new RuntimeException("TaskId not found in database:"))
+        doThrow(new InvalidTaskIdException("TaskId not found in database:"))
                 .when(mockPomodoroServiceImpl).updateTaskById (VALID_USER, 0l, task);
 
         doThrow(new InvalidUserException("User has invalid credential:" + INVALID_USER))
@@ -158,7 +159,7 @@ public class PomodoraTasksApiControllerTests {
         assertThrows (InvalidUserException.class, () -> mockPomodoroServiceImpl.updateTaskById(INVALID_USER, task.getTaskId(), task));
 
         // Invalid TaskID
-        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.updateTaskById(VALID_USER, 0l, task));
+        assertThrows (InvalidTaskIdException.class, () -> mockPomodoroServiceImpl.updateTaskById(VALID_USER, 0l, task));
 
     }
 
