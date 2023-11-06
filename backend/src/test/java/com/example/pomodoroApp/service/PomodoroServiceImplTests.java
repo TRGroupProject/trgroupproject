@@ -187,6 +187,27 @@ public class PomodoroServiceImplTests {
     }
 
 
+    //
+    @Test
+    public void testIsValidUserPositive() {
+
+        String validUid = "User123Valid";
+
+        when(mockPomodoroRepository.isValidUid(validUid)).thenReturn(true);
+
+        verify (pomodoroServiceImpl.isValidUid(validUid)).equals(true);
+    }
+
+
+    @Test
+    public void testIsValidUserNegative() {
+
+        String invalidUid = "User123Invalid";
+
+        when(mockPomodoroRepository.isValidUid(invalidUid)).thenReturn(false);
+
+        verify (pomodoroServiceImpl.isValidUid(validUid)).equals(false);
+    }
 
 
 //    @Test
