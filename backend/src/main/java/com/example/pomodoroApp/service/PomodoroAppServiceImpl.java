@@ -5,6 +5,7 @@ import com.example.pomodoroApp.repository.PomodoroAppRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.net.URL;
 import java.util.List;
 
 @Service
@@ -29,5 +30,10 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
     public List<UserPomodoroTask> getAllUncompletedTasksByGoogleUserId(String googleUserId) {
         List<UserPomodoroTask> tasks = pomodoroAppRepository.findAllTasksUncompleted(googleUserId);
         return tasks;
+    }
+
+    @Override
+    public URL getGoogleApiUrl(String uid) {
+        return null;
     }
 }
