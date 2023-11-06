@@ -12,22 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.core.parameters.P;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import javax.security.sasl.AuthenticationException;
-import java.security.InvalidParameterException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -161,6 +157,28 @@ public class PomodoraTasksApiControllerTests {
         // Invalid TaskID
         assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.updateTaskById(VALID_USER, 0l, task));
 
+    }
+
+    @Test
+    public void testGetMusicURL () throws Exception {
+
+        String musicURLString = "https://public.radio.co/playerapi/jquery.radiocoplayer.min.js";
+        URL musicURL = new URL (musicURLString);
+        System.out.println("Music URL:" + musicURL);
+
+        when(mockPomodoroServiceImpl.getMusicUrl(VALID_USER)).thenReturn(musicURL);
+
+        doThrow(new RuntimeException("User has invalid credential:" + INVALID_USER))
+                .when(mockPomodoroServiceImpl).getMusicUrl(INVALID_USER);
+
+
+        this.mockMvcController.perform(
+                        MockMvcRequestBuilders.get("/api/v1/tasks/music/").header("user", VALID_USER))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string (musicURL.toString()));
+
+        // Invalid user in Header
+        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.getMusicUrl(INVALID_USER));
 
     }
 }
