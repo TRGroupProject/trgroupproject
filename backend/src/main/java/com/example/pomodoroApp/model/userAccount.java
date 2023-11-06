@@ -1,5 +1,4 @@
 package com.example.pomodoroApp.model;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class userAccount {
+public class UserAccount {
 
     @Id
     @GeneratedValue
