@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -17,7 +17,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 
-public class userPomodoroTasks {
+public class UserPomodoroTask {
     @Id
     @GeneratedValue
     @Column(updatable = false, nullable = false)
@@ -36,11 +36,11 @@ public class userPomodoroTasks {
     String description;
 
     @Column(updatable = true, nullable = false)
-    Date calendarStartDateTime;
+    LocalDateTime calendarStartDateTime;
 
-    @Column
-    Date pomodoroStartDateTime;
+    @Column(nullable = true)
+    LocalDateTime pomodoroStartDateTime;
 
-    @Column
-    Date pomodoroEndDateTime;
+    @Column(nullable = true)
+    LocalDateTime pomodoroEndDateTime;
 }
