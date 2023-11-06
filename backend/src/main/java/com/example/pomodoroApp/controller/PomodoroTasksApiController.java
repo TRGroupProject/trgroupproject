@@ -12,8 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
-public class PomodoroApiController {
-
+public class PomodoroTasksApiController {
     @Autowired
     PomodoroService pomodoroService;
 
@@ -22,14 +21,14 @@ public class PomodoroApiController {
         return new ResponseEntity<String>("Welcome to the Pomodoro API", HttpStatus.OK);
     }
 
-    @GetMapping (value="/login")
+    @GetMapping(value = "/login")
     // Check if user already exists in database, if not then call google endpoint to get user details
     // and add to our database with a userAccount object
-    public ResponseEntity<String> login (@RequestHeader("authorization") String authorization, @RequestHeader("user") String uid)  {
+    public ResponseEntity<String> login(@RequestHeader("authorization") String authorization, @RequestHeader("user") String uid) {
 
         // TODO - move into PomodoroCalendarAPIController?
 
-        String loginResponse = pomodoroService.login (authorization, uid);
+        String loginResponse = pomodoroService.login(authorization, uid);
 
         return new ResponseEntity<String>(loginResponse, HttpStatus.OK);
     }
@@ -48,35 +47,29 @@ public class PomodoroApiController {
     }
 
 
-
-    @GetMapping(value ="/calendar")
+    @GetMapping(value = "/calendar")
     // Sync to google calendar and return updated list of tasks (using pomodoroService.getAllTasks(uid, false);
     public ResponseEntity<List<PomodoroTask>> getSyncedTasks(@RequestHeader("authorization") String authorization, @RequestHeader("user") String uid) {
-
-        // TODO - move into PomodoroCalendarAPIController?
 
         List<PomodoroTask> tasks = pomodoroService.synchAndGetAllTasks(authorization, uid);
         return new ResponseEntity<List<PomodoroTask>>(tasks, HttpStatus.OK);
     }
 
 
-    @GetMapping(value ="/music")
-    public ResponseEntity<URL> getMusicURL (@RequestHeader("user") String uid) {
+    @GetMapping(value = "/music")
+    public ResponseEntity<URL> getMusicURL(@RequestHeader("user") String uid) {
 
-        URL musicURL = pomodoroService.getMusicUrl (uid);
+        URL musicURL = pomodoroService.getMusicUrl(uid);
         return new ResponseEntity<URL>(musicURL, HttpStatus.OK);
     }
 
 
-
-    @PatchMapping ("/{taskId}")
+    @PatchMapping("/{taskId}")
     // Update the task in our database
     // Do we expect a task in the body, or a field to update?
-    public ResponseEntity<PomodoroTask> updateTask (@RequestHeader("user") String uid, @PathVariable Long taskId, @RequestBody PomodoroTask task) {
+    public ResponseEntity<PomodoroTask> updateTask(@RequestHeader("user") String uid, @PathVariable Long taskId, @RequestBody PomodoroTask task) {
 
-        pomodoroService.updateTaskById (uid, taskId, task);
+        pomodoroService.updateTaskById(uid, taskId, task);
         return new ResponseEntity<PomodoroTask>(pomodoroService.getTaskById(taskId), HttpStatus.OK);
     }
-
-
 }
