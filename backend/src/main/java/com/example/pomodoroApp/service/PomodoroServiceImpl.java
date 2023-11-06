@@ -76,7 +76,7 @@ public class PomodoroServiceImpl implements PomodoroService {
     }
 
 
-    private boolean isValidUid (String uid) {
+    protected boolean isValidUid (String uid) {
         // TODO - call database to see if UID exists in db. True if it exists, false otherwise
         return pomodoroRepository.isValidUid (uid);
     }
