@@ -1,5 +1,6 @@
 package com.example.pomodoroApp.controller;
 
+import com.example.pomodoroApp.exceptions.InvalidUserException;
 import com.example.pomodoroApp.model.UserPomodoroTask;
 import com.example.pomodoroApp.service.PomodoroServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,9 +80,9 @@ public class PomodoraTasksApiControllerTests {
         when(mockPomodoroServiceImpl.getAllTasks(VALID_USER, true)).thenReturn(completedTasks);
 //            when(mockPomodoroServiceImpl.getAllTasks(INVALID_USER, false )).thenThrow(new AuthenticationException("user is not authenticated"));
 
-        doThrow(new RuntimeException("User has invalid credential:" + INVALID_USER))
+        doThrow(new InvalidUserException("User has invalid credential:" + INVALID_USER))
                 .when(mockPomodoroServiceImpl).getAllTasks(INVALID_USER, false);
-        doThrow(new RuntimeException("User has invalid credential:" + INVALID_USER))
+        doThrow(new InvalidUserException("User has invalid credential:" + INVALID_USER))
                 .when(mockPomodoroServiceImpl).getAllTasks(INVALID_USER, true);
 
 
@@ -123,8 +124,8 @@ public class PomodoraTasksApiControllerTests {
 
 
         // Test expection thrown when invalid user value passed in header
-        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.getAllTasks(INVALID_USER, false));
-        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.getAllTasks(INVALID_USER, true));
+        assertThrows (InvalidUserException.class, () -> mockPomodoroServiceImpl.getAllTasks(INVALID_USER, false));
+        assertThrows (InvalidUserException.class, () -> mockPomodoroServiceImpl.getAllTasks(INVALID_USER, true));
     }
 
     @Test
@@ -137,7 +138,7 @@ public class PomodoraTasksApiControllerTests {
         doThrow(new RuntimeException("TaskId not found in database:"))
                 .when(mockPomodoroServiceImpl).updateTaskById (VALID_USER, 0l, task);
 
-        doThrow(new RuntimeException("User has invalid credential:" + INVALID_USER))
+        doThrow(new InvalidUserException("User has invalid credential:" + INVALID_USER))
                 .when(mockPomodoroServiceImpl).updateTaskById (INVALID_USER, task.getTaskId(), task);
 
 
@@ -154,7 +155,7 @@ public class PomodoraTasksApiControllerTests {
         verify(mockPomodoroServiceImpl, times(1)).updateTaskById(VALID_USER, task.getTaskId(), task);
 
         // Invalid user in Header
-        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.updateTaskById(INVALID_USER, task.getTaskId(), task));
+        assertThrows (InvalidUserException.class, () -> mockPomodoroServiceImpl.updateTaskById(INVALID_USER, task.getTaskId(), task));
 
         // Invalid TaskID
         assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.updateTaskById(VALID_USER, 0l, task));
@@ -169,7 +170,7 @@ public class PomodoraTasksApiControllerTests {
 
         when(mockPomodoroServiceImpl.getMusicUrl(VALID_USER)).thenReturn(musicURL);
 
-        doThrow(new RuntimeException("User has invalid credential:" + INVALID_USER))
+        doThrow(new InvalidUserException("User has invalid credential:" + INVALID_USER))
                 .when(mockPomodoroServiceImpl).getMusicUrl(INVALID_USER);
 
 
@@ -179,7 +180,7 @@ public class PomodoraTasksApiControllerTests {
                 .andExpect(MockMvcResultMatchers.content().string(String.format("\"%s\"", musicURLString)));
 
         // Invalid user in Header
-        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.getMusicUrl(INVALID_USER));
+        assertThrows (InvalidUserException.class, () -> mockPomodoroServiceImpl.getMusicUrl(INVALID_USER));
 
     }
 }
