@@ -15,12 +15,12 @@ public class PomodoroServiceImpl implements PomodoroService {
     }
 
     @Override
-    public List<UserPomodoroTask> synchAndGetAllTasks(String uid, String s) {
+    public List<UserPomodoroTask> synchAndGetAllTasks(String authorization, String uid) {
         return null;
     }
 
     @Override
-    public String login(String authorisaztionCredentials, String uid) {
+    public String login(String authorization, String uid) {
         return null;
     }
 
@@ -31,7 +31,7 @@ public class PomodoroServiceImpl implements PomodoroService {
 
     @Override
     public UserPomodoroTask updateTaskById(String uid, Long taskId, UserPomodoroTask task) {
-return null;
+        return null;
     }
 
     @Override

@@ -10,9 +10,9 @@ public interface PomodoroService {
 
     List<UserPomodoroTask> getAllTasks(String uid, boolean isCompleted);
 
-    List<UserPomodoroTask> synchAndGetAllTasks(String uid, String s);
+    List<UserPomodoroTask> synchAndGetAllTasks(String authorization, String uid);
 
-    String login(String authorisaztionCredentials, String uid);
+    String login(String authorization, String uid);
 
     URL getMusicUrl(String uid);
 
