@@ -20,5 +20,5 @@ public interface PomodoroAppService {
 
     public String getGoogleApiCalendarEvents(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
 
-    public UserAccount getGoogleApiUserInfo(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
+    public UserAccount saveGoogleApiUserInfo(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
 }
