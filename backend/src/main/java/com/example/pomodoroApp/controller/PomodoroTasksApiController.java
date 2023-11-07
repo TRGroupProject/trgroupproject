@@ -27,14 +27,13 @@ public class PomodoroTasksApiController {
 
     @GetMapping(value = "/")
     // Get a list of all tasks from out database:
-    //  @ googleUserId - unique google id of the user
-    //  @ authToken - token to authenticate with google API
-    //  @ tasksSelection: valid options are: all, completed, uncompleted
+    //  @ user - unique google id of the user
+    //  @ authorization - token to authenticate with google API
+    //  @ tasks: valid options are: all, completed, uncompleted
     //  @ google: valid options are: true, false   true syncs the database with the users calendar before returning the list of tasks
-    //  if isCompleted = true then return tasks[] having the completedDateTime field not null
     public ResponseEntity<List<UserPomodoroTask>>
     getAllTasks(@RequestHeader("user") String googleUserId,
-                @RequestHeader("Authorization") String authToken,
+                @RequestHeader("authorization") String authToken,
                 @RequestParam(name = "tasks", defaultValue = "all") String tasksSelection,
                 @RequestParam(name = "google", defaultValue = "false") String googleSync) throws RuntimeException, URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
 

@@ -9,21 +9,21 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 public interface PomodoroAppService {
-    public List<UserPomodoroTask> getAllTasksByGoogleUserId(String googleUserId, boolean syncGoogleCalendar);
+    public List<UserPomodoroTask> getAllTasksByGoogleUserId(String googleUserId);
 
-    public List<UserPomodoroTask> getAllCompletedTasksByGoogleUserId(String googleUserId, boolean syncGoogleCalendar);
+    public List<UserPomodoroTask> getAllCompletedTasksByGoogleUserId(String googleUserId);
 
-    public List<UserPomodoroTask> getAllUncompletedTasksByGoogleUserId(String googleUserId, boolean syncGoogleCalendar);
+    public List<UserPomodoroTask> getAllUncompletedTasksByGoogleUserId(String googleUserId);
 
     public URL getGoogleApiUrl(String uid);
 
     URL getMusicUrl(String uid);
 
-    UserPomodoroTask updateTaskByGoogleUserId(String googleUserId, Long taskId, UserPomodoroTask task);
+    UserPomodoroTask updateTaskByTaskId(String googleUserId, Long taskId, UserPomodoroTask task);
 
     UserPomodoroTask getTaskByTaskId(Long taskId);
 
-//    public String getGoogleApiCalendarEvents(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
+    public String getGoogleApiCalendarEvents(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
 
     public String getGoogleApiUserInfo(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
 }

@@ -31,10 +31,10 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
     @Autowired
     PomodoroAppRepository pomodoroAppRepository;
     @Autowired
-    PomodoroUserRepository pomodoraUserRepository;
+    PomodoroUserRepository pomodoroUserRepository;
 
     @Override
-    public List<UserPomodoroTask> getAllTasksByGoogleUserId(String googleUserId, boolean syncGoogleCalendar) {
+    public List<UserPomodoroTask> getAllTasksByGoogleUserId(String googleUserId) {
         if (!isValidUid(googleUserId)) {
             throw new InvalidUserException("User ID is not valid");
         }
@@ -44,7 +44,7 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
     }
 
     @Override
-    public List<UserPomodoroTask> getAllCompletedTasksByGoogleUserId(String googleUserId, boolean syncGoogleCalendar) {
+    public List<UserPomodoroTask> getAllCompletedTasksByGoogleUserId(String googleUserId) {
         if (!isValidUid(googleUserId)) {
             throw new InvalidUserException("User ID is not valid");
         }
@@ -54,7 +54,7 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
     }
 
     @Override
-    public List<UserPomodoroTask> getAllUncompletedTasksByGoogleUserId(String googleUserId, boolean syncGoogleCalendar) {
+    public List<UserPomodoroTask> getAllUncompletedTasksByGoogleUserId(String googleUserId) {
         if (!isValidUid(googleUserId)) {
             throw new InvalidUserException("User ID is not valid");
         }
@@ -74,7 +74,7 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
     }
 
     @Override
-    public UserPomodoroTask updateTaskByGoogleUserId(String googleUserId, Long taskId, UserPomodoroTask task) {
+    public UserPomodoroTask updateTaskByTaskId(String googleUserId, Long taskId, UserPomodoroTask task) {
         if (!isValidUid(googleUserId)) {
             throw new InvalidUserException("User ID is not valid");
         }
@@ -103,11 +103,12 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
     }
 
     protected boolean isValidUid (String googleUserId) {
-        return pomodoraUserRepository.getUserAccountByGoogleUserId(googleUserId) != null;
+        return pomodoroUserRepository.getUserAccountByGoogleUserId(googleUserId) != null;
     }
 
 
 
+    @Override
     public String getGoogleApiCalendarEvents(String authToken)
             throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
 
