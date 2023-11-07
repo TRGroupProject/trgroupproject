@@ -42,8 +42,6 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
     @Autowired
     PomodoroUserRepository pomodoroUserRepository;
 
-    @Autowired
-    PomodoroUserRepository pomodoroUserRepository;
 
     @Override
     public List<UserPomodoroTask> getAllTasksByGoogleUserId(String googleUserId) {
