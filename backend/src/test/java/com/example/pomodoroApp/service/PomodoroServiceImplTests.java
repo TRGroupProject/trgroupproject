@@ -168,25 +168,25 @@ public class PomodoroServiceImplTests {
         UserPomodoroTask actualResult = pomodoroServiceImpl.getTaskByTaskId(validTaskId);
         assertThat(actualResult).isEqualTo(task);
     }
+
+
+    @Test
+    public void testGetTaskByIdWithInvalidTaskIdThrowsException() {
+
+        Long invalidTaskId = 6L;
+
+        when(mockPomodoroRepository.findById(invalidTaskId)).thenThrow(new InvalidTaskIdException("Invalid Task ID:" + invalidTaskId));
+
+        try {
+            UserPomodoroTask actualResult = pomodoroServiceImpl.getTaskByTaskId(invalidTaskId);
+            fail ("getTaskById should throw InvalidTaskIdException when give an invalid TaskId");
+        } catch (InvalidTaskIdException ex) {
+            System.out.println(ex);
+        }
+
+        verify (mockPomodoroRepository, times (1)).findById(invalidTaskId);
+    }
 }
-//
-//    @Test
-//    public void testGetTaskByIdWithInvalidTaskIdThrowsException() {
-//
-//        Long invalidTaskId = 6L;
-//
-//        when(mockPomodoroRepository.findById(invalidTaskId)).thenThrow(new InvalidTaskIdException("Invalid Task ID:" + invalidTaskId));
-//
-//        try {
-//            UserPomodoroTask actualResult = pomodoroServiceImpl.getTaskById(invalidTaskId);
-//            fail ("getTaskById should throw InvalidTaskIdException when give an invalid TaskId");
-//        } catch (InvalidTaskIdException ex) {
-//            System.out.println(ex);
-//        }
-//
-//        verify (mockPomodoroRepository, times (1)).findById(INVALID_USER);
-//    }
-//
 //
 //
 //        @Test
