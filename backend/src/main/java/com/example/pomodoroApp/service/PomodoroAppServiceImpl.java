@@ -1,8 +1,12 @@
 package com.example.pomodoroApp.service;
 
+import com.example.pomodoroApp.model.UserAccount;
 import com.example.pomodoroApp.model.UserPomodoroTask;
 import com.example.pomodoroApp.repository.PomodoroAppRepository;
 
+import com.example.pomodoroApp.repository.PomodoroUserRepository;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +31,9 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
 
     @Autowired
     PomodoroAppRepository pomodoroAppRepository;
+
+    @Autowired
+    PomodoroUserRepository pomodoroUserRepository;
 
     @Override
     public List<UserPomodoroTask> getAllTasksByGoogleUserId(String googleUserId) {
@@ -83,7 +90,7 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
     }
 
     @Override
-    public String getGoogleApiUserInfo(String authToken) throws ExecutionException, InterruptedException, TimeoutException, URISyntaxException {
+    public UserAccount saveGoogleApiUserInfo(String authToken) throws ExecutionException, InterruptedException, TimeoutException, URISyntaxException {
 
         try {
 
@@ -100,8 +107,20 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
             CompletableFuture<HttpResponse<String>> response = client.sendAsync(request,
                     HttpResponse.BodyHandlers.ofString());
 
-            String jsonResponse = response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS);
-            return jsonResponse;
+            String stringResponse = response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS);
+
+            JsonObject jsonResponse = JsonParser.parseString(stringResponse).getAsJsonObject();
+
+            UserAccount user = UserAccount.builder()
+                    .googleUserId(jsonResponse.get("sub").getAsString())
+                    .userEmail(jsonResponse.get("email").getAsString())
+                    .userName(jsonResponse.get("name").getAsString())
+                    .build();
+
+            pomodoroUserRepository.save(user);
+
+            return user;
+
         } catch (Exception e) {
             throw new RuntimeException("Error while fetching user information", e);
         }
