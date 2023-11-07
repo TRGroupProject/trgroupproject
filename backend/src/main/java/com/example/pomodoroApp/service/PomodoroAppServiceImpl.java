@@ -1,12 +1,20 @@
 package com.example.pomodoroApp.service;
 
+
+import com.example.pomodoroApp.exceptions.InvalidTaskIdException;
+import com.example.pomodoroApp.exceptions.InvalidUserException;
+
 import com.example.pomodoroApp.model.UserAccount;
+
 import com.example.pomodoroApp.model.UserPomodoroTask;
 import com.example.pomodoroApp.repository.PomodoroAppRepository;
 
 import com.example.pomodoroApp.repository.PomodoroUserRepository;
+
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,24 +39,38 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
 
     @Autowired
     PomodoroAppRepository pomodoroAppRepository;
+    @Autowired
+    PomodoroUserRepository pomodoroUserRepository;
 
     @Autowired
     PomodoroUserRepository pomodoroUserRepository;
 
     @Override
     public List<UserPomodoroTask> getAllTasksByGoogleUserId(String googleUserId) {
+        if (!isValidUid(googleUserId)) {
+            throw new InvalidUserException("User ID is not valid");
+        }
+
         List<UserPomodoroTask> tasks = pomodoroAppRepository.getTasksByGoogleUserId(googleUserId);
         return tasks;
     }
 
     @Override
     public List<UserPomodoroTask> getAllCompletedTasksByGoogleUserId(String googleUserId) {
+        if (!isValidUid(googleUserId)) {
+            throw new InvalidUserException("User ID is not valid");
+        }
+
         List<UserPomodoroTask> tasks = pomodoroAppRepository.findAllTasksCompleted(googleUserId);
         return tasks;
     }
 
     @Override
     public List<UserPomodoroTask> getAllUncompletedTasksByGoogleUserId(String googleUserId) {
+        if (!isValidUid(googleUserId)) {
+            throw new InvalidUserException("User ID is not valid");
+        }
+
         List<UserPomodoroTask> tasks = pomodoroAppRepository.findAllTasksUncompleted(googleUserId);
         return tasks;
     }
@@ -57,6 +79,46 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
     public URL getGoogleApiUrl(String uid) {
         return null;
     }
+
+    @Override
+    public URL getMusicUrl(String uid) {
+        return null;
+    }
+
+    @Override
+    public UserPomodoroTask updateTaskByTaskId(String googleUserId, Long taskId, UserPomodoroTask task) {
+        if (!isValidUid(googleUserId)) {
+            throw new InvalidUserException("User ID is not valid");
+        }
+
+        UserPomodoroTask retrievedTask = getTaskByTaskId(taskId);
+
+        if (retrievedTask != null) {
+            retrievedTask.setTitle(task.getTitle());
+            retrievedTask.setDescription(task.getDescription());
+            retrievedTask.setGoogleEventId(task.getGoogleEventId());
+            retrievedTask.setGoogleUserId(task.getGoogleUserId());
+            retrievedTask.setCalendarStartDateTime(task.getCalendarStartDateTime());
+            retrievedTask.setPomodoroStartDateTime(task.getPomodoroStartDateTime());
+            retrievedTask.setPomodoroEndDateTime(task.getPomodoroEndDateTime());
+            pomodoroAppRepository.save(retrievedTask);
+        } else {
+            throw new InvalidTaskIdException( "The task with id " + taskId + " cannot be found");
+        }
+        return retrievedTask;
+    }
+
+    @Override
+    public UserPomodoroTask getTaskByTaskId(Long taskId) {
+        return pomodoroAppRepository.findById(taskId)
+                .orElseThrow(() -> new InvalidTaskIdException ("No task present with ID = " + taskId));
+    }
+
+    protected boolean isValidUid (String googleUserId) {
+        return pomodoroUserRepository.getUserAccountByGoogleUserId(googleUserId) != null;
+    }
+
+
 
     @Override
     public String getGoogleApiCalendarEvents(String authToken)

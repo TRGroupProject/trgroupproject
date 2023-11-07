@@ -18,6 +18,12 @@ public interface PomodoroAppService {
 
     public URL getGoogleApiUrl(String uid);
 
+    URL getMusicUrl(String uid);
+
+    UserPomodoroTask updateTaskByTaskId(String googleUserId, Long taskId, UserPomodoroTask task);
+
+    UserPomodoroTask getTaskByTaskId(Long taskId);
+
     public String getGoogleApiCalendarEvents(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
 
     public UserAccount saveGoogleApiUserInfo(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
