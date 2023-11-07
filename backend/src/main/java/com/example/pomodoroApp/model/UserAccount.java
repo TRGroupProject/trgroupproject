@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigInteger;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -18,7 +20,7 @@ public class UserAccount {
     @Id
     @GeneratedValue
     @Column(updatable = false, nullable = false)
-    Long userId;
+    BigInteger userId;
 
     @Column(updatable = false, nullable = false)
     String googleUserId;
