@@ -1,7 +1,9 @@
 package com.example.pomodoroApp.service;
 
+import com.example.pomodoroApp.model.UserAccount;
 import com.example.pomodoroApp.model.UserPomodoroTask;
 import com.example.pomodoroApp.repository.PomodoroAppRepository;
+import com.example.pomodoroApp.repository.PomodoroUserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -20,6 +22,8 @@ public class PomodoroAppServiceTests {
 
     @Mock
     private PomodoroAppRepository mockPomodoroAppRepository;
+    @Mock
+    private PomodoroUserRepository mockPomodoroUserRepository;
 
     @InjectMocks
     private PomodoroAppServiceImpl pomodoroAppServiceImpl;
@@ -47,8 +51,14 @@ public class PomodoroAppServiceTests {
         List<UserPomodoroTask> tasks = Arrays.asList(userPomodoroTask1, userPomodoroTask2, userPomodoroTask3);
 
         String userId = "123";
+        UserAccount userAccount = UserAccount.builder().googleUserId(userId)
+                .userEmail("blah@blah.com")
+                .userName("blah")
+                .userId(1l).build();
+
 
         when(mockPomodoroAppRepository.getTasksByGoogleUserId(userId)).thenReturn(tasks);
+        when(mockPomodoroUserRepository.getUserAccountByGoogleUserId(userId)).thenReturn(userAccount);
 
         List<UserPomodoroTask> actualResult = pomodoroAppServiceImpl.getAllTasksByGoogleUserId(userId);
         assertThat(actualResult).isEqualTo(tasks);
@@ -72,8 +82,13 @@ public class PomodoroAppServiceTests {
         List<UserPomodoroTask> completedTasks = Arrays.asList(userPomodoroTask1);
 
         String userId = "123";
+        UserAccount userAccount = UserAccount.builder().googleUserId(userId)
+                .userEmail("blah@blah.com")
+                .userName("blah")
+                .userId(1l).build();
 
         when(mockPomodoroAppRepository.findAllTasksCompleted(userId)).thenReturn(completedTasks);
+        when(mockPomodoroUserRepository.getUserAccountByGoogleUserId(userId)).thenReturn(userAccount);
 
         List<UserPomodoroTask> actualResult = pomodoroAppServiceImpl.getAllCompletedTasksByGoogleUserId(userId);
         assertThat(actualResult).isEqualTo(completedTasks);
@@ -96,8 +111,13 @@ public class PomodoroAppServiceTests {
         List<UserPomodoroTask> uncompletedTasks = Arrays.asList(userPomodoroTask1);
 
         String userId = "123";
+        UserAccount userAccount = UserAccount.builder().googleUserId(userId)
+                .userEmail("blah@blah.com")
+                .userName("blah")
+                .userId(1l).build();
 
         when(mockPomodoroAppRepository.findAllTasksUncompleted(userId)).thenReturn(uncompletedTasks);
+        when(mockPomodoroUserRepository.getUserAccountByGoogleUserId(userId)).thenReturn(userAccount);
 
         List<UserPomodoroTask> actualResult = pomodoroAppServiceImpl.getAllUncompletedTasksByGoogleUserId(userId);
         assertThat(actualResult).isEqualTo(uncompletedTasks);
