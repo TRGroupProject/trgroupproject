@@ -4,6 +4,7 @@ import com.example.pomodoroApp.model.UserAccount;
 import com.example.pomodoroApp.model.UserPomodoroTask;
 import com.example.pomodoroApp.repository.PomodoroAppRepository;
 
+import com.example.pomodoroApp.repository.PomodoroUserRepository;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
 
     @Autowired
     PomodoroAppRepository pomodoroAppRepository;
+
+    @Autowired
+    PomodoroUserRepository pomodoroUserRepository;
 
     @Override
     public List<UserPomodoroTask> getAllTasksByGoogleUserId(String googleUserId) {
@@ -86,7 +90,7 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
     }
 
     @Override
-    public UserAccount getGoogleApiUserInfo(String authToken) throws ExecutionException, InterruptedException, TimeoutException, URISyntaxException {
+    public UserAccount saveGoogleApiUserInfo(String authToken) throws ExecutionException, InterruptedException, TimeoutException, URISyntaxException {
 
         try {
 
@@ -108,10 +112,12 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
             JsonObject jsonResponse = JsonParser.parseString(stringResponse).getAsJsonObject();
 
             UserAccount user = UserAccount.builder()
-                    .userId(jsonResponse.get("sub").getAsBigInteger())
+                    .googleUserId(jsonResponse.get("sub").getAsString())
                     .userEmail(jsonResponse.get("email").getAsString())
                     .userName(jsonResponse.get("name").getAsString())
                     .build();
+
+            pomodoroUserRepository.save(user);
 
             return user;
 
