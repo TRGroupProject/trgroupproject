@@ -1,15 +1,12 @@
 package com.example.pomodoroApp.controller;
 
 import com.example.pomodoroApp.model.UserPomodoroTask;
-import com.example.pomodoroApp.service.PomodoroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.sasl.AuthenticationException;
 import java.net.URL;
-import java.security.InvalidParameterException;
 import java.util.List;
 
 @RestController
