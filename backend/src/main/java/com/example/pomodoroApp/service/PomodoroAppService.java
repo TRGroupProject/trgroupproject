@@ -1,5 +1,6 @@
 package com.example.pomodoroApp.service;
 
+import com.example.pomodoroApp.model.UserAccount;
 import com.example.pomodoroApp.model.UserPomodoroTask;
 
 import java.net.URISyntaxException;
@@ -19,5 +20,5 @@ public interface PomodoroAppService {
 
     public String getGoogleApiCalendarEvents(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
 
-    public String getGoogleApiUserInfo(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
+    public UserAccount getGoogleApiUserInfo(String uid) throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException;
 }

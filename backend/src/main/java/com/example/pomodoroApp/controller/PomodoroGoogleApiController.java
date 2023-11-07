@@ -1,5 +1,6 @@
 package com.example.pomodoroApp.controller;
 
+import com.example.pomodoroApp.model.UserAccount;
 import com.example.pomodoroApp.service.PomodoroAppService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,9 @@ public class PomodoroGoogleApiController {
         PomodoroAppService pomodoroAppService;
 
         @GetMapping("/users")
-        public ResponseEntity<String> getGoogleUserInfo(@RequestHeader("Authorization") String authToken)
+        public ResponseEntity<UserAccount> getGoogleUserInfo(@RequestHeader("Authorization") String authToken)
                 throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
-                String responseJson = pomodoroAppService.getGoogleApiUserInfo(authToken);
+                UserAccount responseJson = pomodoroAppService.getGoogleApiUserInfo(authToken);
                 return new ResponseEntity<>(responseJson, HttpStatus.OK);
         }
 
