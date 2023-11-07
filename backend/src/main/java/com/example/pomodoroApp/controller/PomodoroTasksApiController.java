@@ -1,64 +1,73 @@
 package com.example.pomodoroApp.controller;
 
 import com.example.pomodoroApp.model.UserPomodoroTask;
+import com.example.pomodoroApp.service.PomodoroAppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
 public class PomodoroTasksApiController {
     @Autowired
-    PomodoroService pomodoroService;
+    PomodoroAppService pomodoroAppService;
 
     @GetMapping(value = "/welcome")
     public ResponseEntity<String> welcome() {
         return new ResponseEntity<String>("Welcome to the Pomodoro API", HttpStatus.OK);
     }
 
-    @GetMapping(value = "/login")
-    // Check if user already exists in database, if not then call google endpoint to get user details
-    // and add to our database with a userAccount object
-    public ResponseEntity<String> login(@RequestHeader("authorization") String authorization, @RequestHeader("user") String uid) {
-
-        // TODO - move into PomodoroCalendarAPIController?
-
-        String loginResponse = pomodoroService.login(authorization, uid);
-
-        return new ResponseEntity<String>(loginResponse, HttpStatus.OK);
-    }
-
 
     @GetMapping(value = "/")
     // Get a list of all tasks from out database:
-    //  if isCompleted = false then return tasks[] having a deadline date in the future and competedDateTime = null
+    //  @ googleUserId - unique google id of the user
+    //  @ authToken - token to authenticate with google API
+    //  @ tasksSelection: valid options are: all, completed, uncompleted
+    //  @ google: valid options are: true, false   true syncs the database with the users calendar before returning the list of tasks
     //  if isCompleted = true then return tasks[] having the completedDateTime field not null
-    public ResponseEntity<List<UserPomodoroTask>> getAllTasks(@RequestHeader("user") String uid, @RequestParam(name = "isCompleted", defaultValue = "false") String isCompletedParam) throws RuntimeException {
+    public ResponseEntity<List<UserPomodoroTask>>
+    getAllTasks(@RequestHeader("user") String googleUserId,
+                @RequestHeader("Authorization") String authToken,
+                @RequestParam(name = "tasks", defaultValue = "all") String tasksSelection,
+                @RequestParam(name = "google", defaultValue = "false") String googleSync) throws RuntimeException, URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
 
-        boolean isCompleted = Boolean.parseBoolean(isCompletedParam);
+        boolean syncToGoogle = Boolean.parseBoolean(googleSync);
+        if (syncToGoogle) {
+            pomodoroAppService.getGoogleApiCalendarEvents(authToken);
+        }
 
-        List<UserPomodoroTask> tasks = pomodoroService.getAllTasks(uid, isCompleted);
-        return new ResponseEntity<List<UserPomodoroTask>>(tasks, HttpStatus.OK);
-    }
+        List<UserPomodoroTask> tasks;
 
+        switch (tasksSelection) {
+            case "all":
+                tasks = pomodoroAppService.getAllTasksByGoogleUserId(googleUserId);
+                break;
+            case "completed":
+                tasks = pomodoroAppService.getAllCompletedTasksByGoogleUserId(googleUserId);
+                break;
 
-    @GetMapping(value = "/calendar")
-    // Sync to google calendar and return updated list of tasks (using pomodoroService.getAllTasks(uid, false);
-    public ResponseEntity<List<UserPomodoroTask>> getSyncedTasks(@RequestHeader("authorization") String authorization, @RequestHeader("user") String uid) {
+            case "uncompleted":
+                tasks = pomodoroAppService.getAllUncompletedTasksByGoogleUserId(googleUserId);
+                break;
 
-        List<UserPomodoroTask> tasks = pomodoroService.synchAndGetAllTasks(authorization, uid);
-        return new ResponseEntity<List<UserPomodoroTask>>(tasks, HttpStatus.OK);
+            default:
+                throw new IllegalArgumentException("tasks parameter is invalid:" + tasksSelection);
+        }
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
 
     @GetMapping(value = "/music")
     public ResponseEntity<URL> getMusicURL(@RequestHeader("user") String uid) {
 
-        URL musicURL = pomodoroService.getMusicUrl(uid);
+        URL musicURL = pomodoroAppService.getMusicUrl(uid);
         return new ResponseEntity<URL>(musicURL, HttpStatus.OK);
     }
 
@@ -68,6 +77,6 @@ public class PomodoroTasksApiController {
     // Do we expect a task in the body, or a field to update?
     public ResponseEntity<UserPomodoroTask> updateTask(@RequestHeader("user") String uid, @PathVariable Long taskId, @RequestBody UserPomodoroTask task) {
 
-        return new ResponseEntity<UserPomodoroTask> (pomodoroService.updateTaskById(uid, taskId, task), HttpStatus.OK);
+        return new ResponseEntity<UserPomodoroTask> (pomodoroAppService.updateTaskByTaskId(uid, taskId, task), HttpStatus.OK);
     }
 }
