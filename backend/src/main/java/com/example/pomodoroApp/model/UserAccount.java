@@ -20,7 +20,7 @@ public class UserAccount {
     @Id
     @GeneratedValue
     @Column(updatable = false, nullable = false)
-    BigInteger userId;
+    Long userId;
 
     @Column(updatable = false, nullable = false)
     String googleUserId;
