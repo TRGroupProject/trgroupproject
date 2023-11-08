@@ -72,13 +72,14 @@ public class PomodoraGoogleApiControllerTests {
         String googleApURLString = "https://www.googleapis.com/oauth2/v3/userinfo";
         URL googleApiURL = new URL(googleApURLString);
 
-        when(mockPomodoroAppServiceImpl.getGoogleApiUrl(VALID_ACCESS_TOKEN)).thenReturn(googleApiURL);
+//        when(mockPomodoroAppServiceImpl.getGoogleApiUrl(VALID_ACCESS_TOKEN)).thenReturn(googleApiURL);
+//        when(mockPomodoroAppServiceImpl.saveGoogleApiUserInfo(VALID_ACCESS_TOKEN)).thenReturn(A NEW USER)
 
         doThrow(new RuntimeException("User has invalid credential:" + INVALID_ACCESS_TOKEN))
                 .when(mockPomodoroAppServiceImpl).getGoogleApiUrl(INVALID_ACCESS_TOKEN);
 
         this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/api/v1/events/users").header("Authorization",
+                        MockMvcRequestBuilders.post("/api/v1/events/users").header("Authorization",
                                 VALID_ACCESS_TOKEN))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
