@@ -1,15 +1,9 @@
 import * as React from 'react';
-import { useParams } from 'react-router-dom';
+import PomodoroTimer from '../features/PomodoroTimer';
 
-interface ITaskProps {
-}
+const Task: React.FC = () => {
 
-const Task: React.FC<ITaskProps> = () => {
-
-  const taskId = useParams();
-  console.log("taskId", taskId)
-
-  return <>Task</>;
+    return <div><PomodoroTimer /></div>;
 };
 
 export default Task;
