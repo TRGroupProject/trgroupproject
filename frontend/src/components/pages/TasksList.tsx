@@ -5,8 +5,7 @@ import Button from '../features/Buttons/Button';
 import tomato from '../../images/tomato-icon.png';
 import { NavLink } from 'react-router-dom';
 import { useContext } from 'react';
-
-import { TasksContext } from '../../hooks/useContext/taskContext';
+import { TasksContext } from '../../hooks/useContext/taskcontext';
 
 const TaskList: React.FC = () => {
 
