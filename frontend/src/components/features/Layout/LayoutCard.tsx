@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { ReactElement } from 'react';
 
-const Card = styled.div<LayoutCardProps>`
+const Card = styled.div<StyledCardProps>`
   background-color: #f3f3f3;
   border: 1px solid #e4e4e4;
   border-radius: 8px;
@@ -18,18 +18,24 @@ const Card = styled.div<LayoutCardProps>`
 const Title = styled.h2`
   font-size: 24px;
   color: #333;
+  padding-bottom: 0.5em;
+  border-bottom: #333 solid 0.5px;
 `;
 
-interface LayoutCardProps {
-  children: ReactElement | ReactElement[];
-  title: string;
+interface StyledCardProps {
   position?: "top" | "center";
 }
 
-const LayoutCard: React.FC<LayoutCardProps> = ({ children, title, position }) => {
+interface LayoutCardProps {
+  children: ReactElement | ReactElement[];
+  title?: string;
+  position?: "top" | "center";
+}
+
+const LayoutCard: React.FC<LayoutCardProps> = ({ children, title }) => {
   return (
-    <Card position={position}>
-      <Title>{title}</Title>
+    <Card>
+      {title && <Title>{title}</Title>}
       {children}
       </Card>
   );
