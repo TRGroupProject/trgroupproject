@@ -39,7 +39,7 @@ public class PomodoroTasksApiController {
 
         boolean syncToGoogle = Boolean.parseBoolean(googleSync);
         if (syncToGoogle) {
-            pomodoroAppService.getGoogleApiCalendarEvents(authToken);
+            pomodoroAppService.saveGoogleApiCalendarEvents(authToken);
         }
 
         List<UserPomodoroTask> tasks;

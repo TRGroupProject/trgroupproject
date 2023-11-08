@@ -2,7 +2,6 @@ package com.example.pomodoroApp.controller;
 
 import com.example.pomodoroApp.model.UserAccount;
 import com.example.pomodoroApp.service.PomodoroAppService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,16 +24,15 @@ public class PomodoroGoogleApiController {
         public ResponseEntity<UserAccount> saveGoogleUserInfo(@RequestHeader("Authorization") String authToken)
                 throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
                 UserAccount savedUser = pomodoroAppService.saveGoogleApiUserInfo(authToken);
-                HttpHeaders httpHeaders = new HttpHeaders();
-                httpHeaders.setLocation(URI.create("/api/v1/tasks" + savedUser.getGoogleUserId().toString()));
 
-                return new ResponseEntity<>(savedUser, httpHeaders, HttpStatus.CREATED);
+                return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
         }
 
-        @GetMapping("/")
-        public ResponseEntity<String> getGoogleCalendarEvents(@RequestHeader("Authorization") String authToken)
-                throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException, JsonProcessingException {
-                String responseJson = pomodoroAppService.getGoogleApiCalendarEvents(authToken);
-                return new ResponseEntity<>(responseJson, HttpStatus.OK);
+        @PostMapping("/")
+        public ResponseEntity<String> saveGoogleCalendarEvents(@RequestHeader("Authorization") String authToken)
+                throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
+                String savedTasks = pomodoroAppService.saveGoogleApiCalendarEvents(authToken);
+
+                return new ResponseEntity<>(savedTasks, HttpStatus.CREATED);
         }
 }
