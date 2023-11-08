@@ -64,9 +64,9 @@ public class PomodoroTasksApiController {
 
 
     @GetMapping(value = "/music")
-    public ResponseEntity<URL> getMusicURL(@RequestHeader("user") String uid) {
+    public ResponseEntity<URL> getMusicURL(@RequestHeader("user") String googleUserId) {
 
-        URL musicURL = pomodoroAppService.getMusicUrl(uid);
+        URL musicURL = pomodoroAppService.getMusicUrl(googleUserId);
         return new ResponseEntity<URL>(musicURL, HttpStatus.OK);
     }
 
@@ -74,8 +74,8 @@ public class PomodoroTasksApiController {
     @PatchMapping("/{taskId}")
     // Update the task in our database
     // Do we expect a task in the body, or a field to update?
-    public ResponseEntity<UserPomodoroTask> updateTask(@RequestHeader("user") String uid, @PathVariable Long taskId, @RequestBody UserPomodoroTask task) {
+    public ResponseEntity<UserPomodoroTask> updateTask(@RequestHeader("user") String googleUserId, @PathVariable Long taskId, @RequestBody UserPomodoroTask task) {
 
-        return new ResponseEntity<UserPomodoroTask> (pomodoroAppService.updateTaskByTaskId(uid, taskId, task), HttpStatus.OK);
+        return new ResponseEntity<UserPomodoroTask> (pomodoroAppService.updateTaskByTaskId(googleUserId, taskId, task), HttpStatus.OK);
     }
 }
