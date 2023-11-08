@@ -7,6 +7,7 @@ target/
 ### Database Config ###
 application.properties
 application-dev.properties
+application-test.properties
 application-prod.properties
 
 ### STS ###
