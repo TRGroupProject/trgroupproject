@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
 const StyledHeading = styled.h1<TextProps>`
-  font-size: ${(props) => (props.size ? props.size + "px" : "24px")};
+  font-size: ${(props) => (props.size ? props + "px" : "24px")};
   font-weight: bold;
   color: #191919;
   margin: 8px 0;
@@ -12,6 +12,7 @@ const StyledText = styled.p<TextProps>`
   font-weight: normal;
   color: #191919;
   margin: 5px 0;
+  display: inline;
 `;
 
 interface TextProps {
