@@ -1,13 +1,10 @@
-import { useGoogleLogin } from '@react-oauth/google';
-import * as React from 'react';
+import { useGoogleLogin } from "@react-oauth/google";
 
-interface IHomeProps {
-}
-
-const Home: React.FC<IHomeProps> = () => {
-
+const Home: React.FC = () => {
   const login = useGoogleLogin({
-    onSuccess: codeResponse => console.log(codeResponse)
+    onSuccess: (codeResponse) => console.log(codeResponse),
+    scope: "https://www.googleapis.com/auth/calendar.readonly",
+    onError: (error) => console.error("Login Authentication Failed", error)
   });
 
   return <>
