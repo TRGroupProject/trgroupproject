@@ -19,19 +19,19 @@ import java.time.LocalDateTime;
 public class UserPomodoroTask {
     @Id
     @GeneratedValue
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     Long taskId;
 
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     String googleUserId;
 
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     String googleEventId;
 
-    @Column(updatable = true, nullable = false)
+    @Column(updatable = true)
     String title;
 
-    @Column(updatable = true, nullable = true)
+    @Column(updatable = true)
     String description;
 
     @Column(updatable = true, nullable = false)
