@@ -12,8 +12,7 @@ const Home: React.FC = () => {
   const login = useGoogleLogin({
     onSuccess: (codeResponse) => {
       console.log(codeResponse);
-      setCredentials(codeResponse.token_type + codeResponse.access_token);
-      navigate("/tasks");
+      setCredentials(codeResponse.access_token);
     },
     scope: 'https://www.googleapis.com/auth/calendar.readonly',
     onError: (error) => console.error('Login Authentication Failed', error),
@@ -48,8 +47,9 @@ const Home: React.FC = () => {
 
     if (credentials) {
       fetchData();
+      navigate("/tasks");
     }
-  }, [credentials]);
+  }, [credentials, navigate]);
 
   return (
     <LayoutCard title="Login with Google">
