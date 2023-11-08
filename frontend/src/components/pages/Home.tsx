@@ -1,4 +1,5 @@
 import { useGoogleLogin } from "@react-oauth/google";
+import Button from "../features/Buttons/Button";
 
 const Home: React.FC = () => {
   const login = useGoogleLogin({
@@ -7,11 +8,15 @@ const Home: React.FC = () => {
     onError: (error) => console.error("Login Authentication Failed", error)
   });
 
-  return <>
-     <button onClick={() => login()}>
-          Log In Using Google
-        </button>
-  </>;
+  return (
+    <>
+      <Button 
+        handleOnClick={() => login()}
+      >
+        Login in with Google
+      </Button>
+    </>
+  );
 };
 
 export default Home;
