@@ -1,9 +1,10 @@
 import styled from "@emotion/styled";
 
 const ButtonContainer = styled.button`
-    display: inline-flex;
+    display: block;
     align-items: center;
     padding: 0.5em 1em;
+    margin: 0;
     border: none;
     border-radius: 0.3em;
     cursor: pointer;
@@ -23,17 +24,17 @@ const Icon = styled.img`
 
 interface ButtonProps {
     icon?: string;
-    text: string;
+    children: string;
     handleOnClick?: () => void;
 }
 
-const Button: React.FC<ButtonProps> = ({ icon, text, handleOnClick }) => {
+const Button: React.FC<ButtonProps> = ({ icon, children, handleOnClick }) => {
     return(
         <ButtonContainer onClick={handleOnClick}>
             {icon === undefined ? null :
                 <Icon src={icon} alt={"Button icon"} />
             }
-            <span>{text}</span>
+            <span>{children}</span>
         </ButtonContainer>
     )
 }
