@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
+@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH})
 public class PomodoroTasksApiController {
     @Autowired
     PomodoroAppService pomodoroAppService;
