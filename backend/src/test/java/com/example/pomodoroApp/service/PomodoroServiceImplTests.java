@@ -130,6 +130,7 @@ public class PomodoroServiceImplTests {
     }
 
 
+    @Test
     public void testGetUnompletedTasksReturnsListOfUncompletedTasks() {
 
         when(mockPomodoroRepository.findAllTasksUncompleted(VALID_USER)).thenReturn(uncompletedTasks);
