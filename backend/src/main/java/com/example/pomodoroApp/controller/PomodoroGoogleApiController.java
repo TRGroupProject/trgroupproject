@@ -20,6 +20,7 @@ public class PomodoroGoogleApiController {
         @Autowired
         PomodoroAppService pomodoroAppService;
 
+        @CrossOrigin(origins = "http://localhost:5173")
         @PostMapping ("/users")
         public ResponseEntity<UserAccount> saveGoogleUserInfo(@RequestHeader("Authorization") String authToken)
                 throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
@@ -28,6 +29,7 @@ public class PomodoroGoogleApiController {
                 return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
         }
 
+        @CrossOrigin(origins = "http://localhost:5173")
         @PostMapping("/")
         public ResponseEntity<String> saveGoogleCalendarEvents(@RequestHeader("Authorization") String authToken)
                 throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
