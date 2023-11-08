@@ -73,13 +73,10 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
         return tasks;
     }
 
-    @Override
-    public URL getGoogleApiUrl(String uid) {
-        return null;
-    }
 
     @Override
     public URL getMusicUrl(String uid) {
+        // todo implement music url logic
         return null;
     }
 
