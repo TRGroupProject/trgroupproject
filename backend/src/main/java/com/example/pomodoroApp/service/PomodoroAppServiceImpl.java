@@ -12,8 +12,7 @@ import com.example.pomodoroApp.repository.PomodoroAppRepository;
 import com.example.pomodoroApp.repository.PomodoroUserRepository;
 
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,14 +27,20 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class PomodoroAppServiceImpl implements PomodoroAppService {
+    private static final Logger logger = LoggerFactory.getLogger(PomodoroAppServiceImpl.class);
+
 
     @Autowired
     PomodoroAppRepository pomodoroAppRepository;
@@ -119,9 +124,7 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
 
 
     @Override
-    public String getGoogleApiCalendarEvents(String authToken)
-            throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
-
+    public String saveGoogleApiCalendarEvents(String authToken) {
         try {
             LocalDateTime now = LocalDateTime.now();
 
@@ -142,10 +145,51 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
             CompletableFuture<HttpResponse<String>> response = client.sendAsync(request,
                     HttpResponse.BodyHandlers.ofString());
 
-            String jsonResponse = response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS);
-            return jsonResponse;
+            String stringResponse = response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS);
+
+            JsonObject eventsData = JsonParser.parseString(stringResponse).getAsJsonObject();
+            JsonArray eventsList = eventsData.get("items").getAsJsonArray();
+
+            ArrayList<UserPomodoroTask> tasksList = new ArrayList<>();
+
+            for (int i = 0; i < eventsList.size(); i++) {
+                JsonObject event = eventsList.get(i).getAsJsonObject();
+                JsonObject start = event.get("start").getAsJsonObject();
+                String startDate = start.get("date").getAsString();
+                JsonObject organizer = event.get("organizer").getAsJsonObject();
+
+                UserPomodoroTask newTask;
+
+                JsonElement descriptionElement = event.get("description");
+                if (descriptionElement == null) {
+                    newTask = UserPomodoroTask.builder()
+                            .googleUserId(organizer.get("email").getAsString())
+                            .googleEventId(event.get("iCalUID").getAsString())
+                            .title(event.get("summary").getAsString())
+                            .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
+                            .build();
+                } else {
+                    newTask = UserPomodoroTask.builder()
+                            .googleUserId(organizer.get("email").getAsString())
+                            .googleEventId(event.get("iCalUID").getAsString())
+                            .title(event.get("summary").getAsString())
+                            .description(event.get("description").getAsString())
+                            .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
+                            .build();
+                }
+
+                pomodoroAppRepository.save(newTask);
+                tasksList.add(newTask);
+            }
+
+            return tasksList.toString();
+
+        } catch (JsonSyntaxException e) {
+            logger.error("Error parsing JSON response", e);
+            throw new RuntimeException("Error parsing JSON response", e);
         } catch (Exception e) {
-            throw new RuntimeException("Error while fetching events", e);
+            logger.error("An unexpected error occurred", e);
+            throw new RuntimeException("An unexpected error occurred", e);
         }
     }
 
