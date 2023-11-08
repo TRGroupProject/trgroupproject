@@ -217,21 +217,21 @@ function PomodoroTimer() {
       </p>
       {showRestartButton ?
       <ButtonWrapper>
-        <Button handleOnClick={restartTimer} icon={tomato} text="RESTART" />
+        <Button handleOnClick={restartTimer} icon={tomato} children="RESTART" />
       </ButtonWrapper>
       :
       <>
         <ButtonWrapper>
-          <Button handleOnClick={stopTimer} icon={tomato} text="STOP"  />
+          <Button handleOnClick={stopTimer} icon={tomato} children="STOP"  />
         </ButtonWrapper>
 
         {showResumeButton ?
           <ButtonWrapper>
-            <Button handleOnClick={resumeTimer} icon={tomato} text="RESUME" />
+            <Button handleOnClick={resumeTimer} icon={tomato} children="RESUME" />
           </ButtonWrapper>
           :
           <ButtonWrapper>
-            <Button handleOnClick={pauseTimer} icon={tomato} text="PAUSE" />
+            <Button handleOnClick={pauseTimer} icon={tomato} children="PAUSE" />
           </ButtonWrapper>
         }
 

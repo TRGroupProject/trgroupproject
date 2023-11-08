@@ -33,7 +33,7 @@ console.log("tasks", tasks)
         <DateTimeText dateTime={new Date(task.calendarStartDateTime)} format={'date'} />
         <div>
           <NavLink to={`/tasks/${task.taskId}`}>
-            <Button icon={tomato} text="START TIMER" handleOnClick={() => {}} />
+            <Button icon={tomato} children="START TIMER" handleOnClick={() => {}} />
           </NavLink>
         </div>
       </TaskContainer>
