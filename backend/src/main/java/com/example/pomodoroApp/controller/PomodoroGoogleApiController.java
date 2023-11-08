@@ -24,10 +24,8 @@ public class PomodoroGoogleApiController {
         public ResponseEntity<UserAccount> saveGoogleUserInfo(@RequestHeader("Authorization") String authToken)
                 throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
                 UserAccount savedUser = pomodoroAppService.saveGoogleApiUserInfo(authToken);
-                HttpHeaders httpHeaders = new HttpHeaders();
-                httpHeaders.setLocation(URI.create("/api/v1/tasks" + savedUser.getUserId().toString()));
 
-                return new ResponseEntity<>(savedUser, httpHeaders, HttpStatus.CREATED);
+                return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
         }
 
         @PostMapping("/")
