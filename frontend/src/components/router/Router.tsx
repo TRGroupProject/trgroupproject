@@ -22,7 +22,7 @@ export const Router: React.FC = () => (
                 <TasksList />
             </LoggedInOnly>
         } />
-        <Route path="/Task/:taskId" element={
+        <Route path="/Tasks/:taskId" element={
             <LoggedInOnly>
                 <Task />
             </LoggedInOnly>
