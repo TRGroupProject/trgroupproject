@@ -1,5 +1,6 @@
 package com.example.pomodoroApp.controller;
 
+import com.example.pomodoroApp.model.UserAccount;
 import com.example.pomodoroApp.service.PomodoroAppServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -37,7 +38,7 @@ public class PomodoraGoogleApiControllerTests {
     private ObjectMapper mapper;
 
     final String VALID_ACCESS_TOKEN = "Valid_Token";
-    final String INVALID_ACCESS_TOKEN = "Invalid_User";
+    final String INVALID_ACCESS_TOKEN = "Invalid_Token";
 
     @BeforeEach
     public void setup() {
@@ -52,10 +53,15 @@ public class PomodoraGoogleApiControllerTests {
         String googleApURLString = "https://www.googleapis.com/calendar/v3/calendars/primary/events?&maxResults=10&timeMin=2023-11-0609:00:00";
         URL googleApiURL = new URL(googleApURLString);
 
-        when(mockPomodoroAppServiceImpl.getGoogleApiUrl(VALID_ACCESS_TOKEN)).thenReturn(googleApiURL);
+//        when(mockPomodoroAppServiceImpl.getGoogleApiUrl(VALID_ACCESS_TOKEN)).thenReturn(googleApiURL);
+//
+//        doThrow(new RuntimeException("User has invalid credential:" + INVALID_ACCESS_TOKEN))
+//                .when(mockPomodoroAppServiceImpl).getGoogleApiUrl(INVALID_ACCESS_TOKEN);
+
+        when (mockPomodoroAppServiceImpl.getGoogleApiCalendarEvents(VALID_ACCESS_TOKEN)).thenReturn("OK");
 
         doThrow(new RuntimeException("User has invalid credential:" + INVALID_ACCESS_TOKEN))
-                .when(mockPomodoroAppServiceImpl).getGoogleApiUrl(INVALID_ACCESS_TOKEN);
+                .when(mockPomodoroAppServiceImpl).getGoogleApiCalendarEvents(INVALID_ACCESS_TOKEN);
 
         this.mockMvcController.perform(
                         MockMvcRequestBuilders.get("/api/v1/events/").header("Authorization",
@@ -63,26 +69,36 @@ public class PomodoraGoogleApiControllerTests {
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
 //         Invalid token in Header
-        assertThrows(RuntimeException.class, () -> mockPomodoroAppServiceImpl.getGoogleApiUrl(INVALID_ACCESS_TOKEN));
+        assertThrows(RuntimeException.class, () -> mockPomodoroAppServiceImpl.getGoogleApiCalendarEvents(INVALID_ACCESS_TOKEN));
     }
 
     @Test
-    public void testGetGoogleUserInfo() throws Exception {
+    public void testPostGoogleUser() throws Exception {
 
-        String googleApURLString = "https://www.googleapis.com/oauth2/v3/userinfo";
-        URL googleApiURL = new URL(googleApURLString);
+//        String googleApURLString = "https://www.googleapis.com/oauth2/v3/userinfo";
+//        URL googleApiURL = new URL(googleApURLString);
 
-        when(mockPomodoroAppServiceImpl.getGoogleApiUrl(VALID_ACCESS_TOKEN)).thenReturn(googleApiURL);
+        UserAccount userAccount = UserAccount.builder().googleUserId("11223344556677889900")
+                .userEmail("validuser@somewhere.com")
+                .userName("valid user")
+                .build();
 
+
+//        when(mockPomodoroAppServiceImpl.getGoogleApiUrl(VALID_ACCESS_TOKEN)).thenReturn(googleApiURL);
+//        doThrow(new RuntimeException("User has invalid credential:" + INVALID_ACCESS_TOKEN))
+//                .when(mockPomodoroAppServiceImpl).getGoogleApiUrl(INVALID_ACCESS_TOKEN);
+
+        when(mockPomodoroAppServiceImpl.saveGoogleApiUserInfo(VALID_ACCESS_TOKEN)).thenReturn(userAccount);
         doThrow(new RuntimeException("User has invalid credential:" + INVALID_ACCESS_TOKEN))
-                .when(mockPomodoroAppServiceImpl).getGoogleApiUrl(INVALID_ACCESS_TOKEN);
+                .when(mockPomodoroAppServiceImpl).saveGoogleApiUserInfo(INVALID_ACCESS_TOKEN);
+
 
         this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/api/v1/events/users").header("Authorization",
+                        MockMvcRequestBuilders.post("/api/v1/events/users").header("Authorization",
                                 VALID_ACCESS_TOKEN))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
 
 //         Invalid token in Header
-        assertThrows(RuntimeException.class, () -> mockPomodoroAppServiceImpl.getGoogleApiUrl(INVALID_ACCESS_TOKEN));
+        assertThrows(RuntimeException.class, () -> mockPomodoroAppServiceImpl.saveGoogleApiUserInfo(INVALID_ACCESS_TOKEN));
     }
 }

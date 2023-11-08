@@ -1,7 +1,9 @@
 package com.example.pomodoroApp.controller;
 
+import com.example.pomodoroApp.exceptions.InvalidTaskIdException;
+import com.example.pomodoroApp.exceptions.InvalidUserException;
 import com.example.pomodoroApp.model.UserPomodoroTask;
-import com.example.pomodoroApp.service.PomodoroServiceImpl;
+import com.example.pomodoroApp.service.PomodoroAppService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,11 +15,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.util.Assert;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 public class PomodoraTasksApiControllerTests {
 
     @Mock
-    private PomodoroServiceImpl mockPomodoroServiceImpl;
+    private PomodoroAppService mockPomodoroServiceImpl;
 
     @InjectMocks
     private PomodoroTasksApiController pomodoroTasksApiController;
@@ -44,9 +44,13 @@ public class PomodoraTasksApiControllerTests {
 
     List<UserPomodoroTask> uncompletedTasks;
     List<UserPomodoroTask> completedTasks;
+    List<UserPomodoroTask> allTasks;
 
     final String VALID_USER = "Valid_User";
     final String INVALID_USER = "Invalid_User";
+
+    final String VALID_AUTH = "Valid_auth";
+    final String INVALID_AUTH = "Invalid_auth";
 
     @BeforeEach
     public void setup() {
@@ -70,24 +74,30 @@ public class PomodoraTasksApiControllerTests {
                 .calendarStartDateTime(LocalDateTime.now()).build());
         completedTasks.add(UserPomodoroTask.builder().taskId(6l).googleUserId("123").googleEventId("EventID6").title("TitleCompleted2").description("Description2")
                 .calendarStartDateTime(LocalDateTime.now()).build());
+
+        allTasks = new ArrayList<>();
+        allTasks.addAll(uncompletedTasks);
+        allTasks.addAll(completedTasks);
     }
 
     @Test
     public void testGetAllTasksReturnsAllTasks() throws Exception {
 
-        when(mockPomodoroServiceImpl.getAllTasks(VALID_USER, false)).thenReturn(uncompletedTasks);
-        when(mockPomodoroServiceImpl.getAllTasks(VALID_USER, true)).thenReturn(completedTasks);
-//            when(mockPomodoroServiceImpl.getAllTasks(INVALID_USER, false )).thenThrow(new AuthenticationException("user is not authenticated"));
+        when(mockPomodoroServiceImpl.getAllTasksByGoogleUserId(VALID_USER)).thenReturn(allTasks);
+        when(mockPomodoroServiceImpl.getAllCompletedTasksByGoogleUserId(VALID_USER)).thenReturn(completedTasks);
+        when(mockPomodoroServiceImpl.getAllUncompletedTasksByGoogleUserId(VALID_USER)).thenReturn(uncompletedTasks);
 
-        doThrow(new RuntimeException("User has invalid credential:" + INVALID_USER))
-                .when(mockPomodoroServiceImpl).getAllTasks(INVALID_USER, false);
-        doThrow(new RuntimeException("User has invalid credential:" + INVALID_USER))
-                .when(mockPomodoroServiceImpl).getAllTasks(INVALID_USER, true);
+        doThrow(new InvalidUserException("User has invalid credential:" + INVALID_USER))
+                .when(mockPomodoroServiceImpl).getAllTasksByGoogleUserId(INVALID_USER);
+        doThrow(new InvalidUserException("User has invalid credential:" + INVALID_USER))
+                .when(mockPomodoroServiceImpl).getAllTasksByGoogleUserId(INVALID_USER);
 
 
         // No Query param
         this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/api/v1/tasks/").header("user", VALID_USER))
+                        MockMvcRequestBuilders.get("/api/v1/tasks/")
+                                .header("user", VALID_USER)
+                                .header("authorization", VALID_AUTH))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].taskId").value(1l))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("Title1"))
@@ -96,35 +106,60 @@ public class PomodoraTasksApiControllerTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].taskId").value(3l))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].title").value("Title3"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[3].taskId").value(4l))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].title").value("Title4"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].title").value("Title4"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].taskId").value(5l));
 
-        // Query Param isCompleted= false
+        // Query param tasks=all
         this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/api/v1/tasks/").header("user", VALID_USER).queryParam("idCompleted", "false"))
+                        MockMvcRequestBuilders.get("/api/v1/tasks/")
+                                .header("user", VALID_USER)
+                                .header("authorization", VALID_AUTH)
+                                .queryParam("tasks", "all"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].taskId").value(1l))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("Title1"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].taskId").value(2l))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].taskId").value(3l))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].taskId").value(4l))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[4].taskId").value(5l))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[5].taskId").value(6l));
 
-
-        // Query Param isCompleted= true
+        // Query Param: tasks=uncompleted
         this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/api/v1/tasks/").header("user", VALID_USER).queryParam("isCompleted", "true"))
+                MockMvcRequestBuilders.get("/api/v1/tasks/")
+                        .header("user", VALID_USER)
+                        .header("authorization", VALID_AUTH)
+                        .queryParam("tasks", "uncompleted"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].taskId").value(1l))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].taskId").value(2l))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].taskId").value(3l))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].taskId").value(4l));
+
+
+        // Query Param tasks=completed
+        this.mockMvcController.perform(
+                        MockMvcRequestBuilders.get("/api/v1/tasks/")
+                                .header("user", VALID_USER)
+                                .header("authorization", VALID_AUTH)
+                                .queryParam("tasks", "completed"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].taskId").value(5l))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("TitleCompleted1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].taskId").value(6l))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].title").value("TitleCompleted2"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].taskId").value(6l));
 
 
         // Test No user value passed in header
         mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/api/v1/tasks/"))
+                        MockMvcRequestBuilders.get("/api/v1/tasks/").header("authorization", VALID_AUTH))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+        // Test No authorization value passed in header
+        mockMvcController.perform(
+                        MockMvcRequestBuilders.get("/api/v1/tasks/").header("user", VALID_USER))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
 
-        // Test expection thrown when invalid user value passed in header
-        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.getAllTasks(INVALID_USER, false));
-        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.getAllTasks(INVALID_USER, true));
+        // Test exception thrown when invalid user value passed in header
+        assertThrows (InvalidUserException.class, () -> mockPomodoroServiceImpl.getAllTasksByGoogleUserId(INVALID_USER));
     }
 
     @Test
@@ -132,13 +167,13 @@ public class PomodoraTasksApiControllerTests {
 
         UserPomodoroTask task = uncompletedTasks.get(0);
 
-        when(mockPomodoroServiceImpl.updateTaskById (VALID_USER, task.getTaskId(), task)).thenReturn(task);
+        when(mockPomodoroServiceImpl.updateTaskByTaskId (VALID_USER, task.getTaskId(), task)).thenReturn(task);
 
-        doThrow(new RuntimeException("TaskId not found in database:"))
-                .when(mockPomodoroServiceImpl).updateTaskById (VALID_USER, 0l, task);
+        doThrow(new InvalidTaskIdException("TaskId not found in database:"))
+                .when(mockPomodoroServiceImpl).updateTaskByTaskId (VALID_USER, 0l, task);
 
-        doThrow(new RuntimeException("User has invalid credential:" + INVALID_USER))
-                .when(mockPomodoroServiceImpl).updateTaskById (INVALID_USER, task.getTaskId(), task);
+        doThrow(new InvalidUserException("User has invalid credential:" + INVALID_USER))
+                .when(mockPomodoroServiceImpl).updateTaskByTaskId (INVALID_USER, task.getTaskId(), task);
 
 
         this.mockMvcController.perform(
@@ -151,13 +186,13 @@ public class PomodoraTasksApiControllerTests {
                 .andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(task)));
 
 
-        verify(mockPomodoroServiceImpl, times(1)).updateTaskById(VALID_USER, task.getTaskId(), task);
+        verify(mockPomodoroServiceImpl, times(1)).updateTaskByTaskId(VALID_USER, task.getTaskId(), task);
 
         // Invalid user in Header
-        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.updateTaskById(INVALID_USER, task.getTaskId(), task));
+        assertThrows (InvalidUserException.class, () -> mockPomodoroServiceImpl.updateTaskByTaskId(INVALID_USER, task.getTaskId(), task));
 
         // Invalid TaskID
-        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.updateTaskById(VALID_USER, 0l, task));
+        assertThrows (InvalidTaskIdException.class, () -> mockPomodoroServiceImpl.updateTaskByTaskId(VALID_USER, 0l, task));
 
     }
 
@@ -169,7 +204,7 @@ public class PomodoraTasksApiControllerTests {
 
         when(mockPomodoroServiceImpl.getMusicUrl(VALID_USER)).thenReturn(musicURL);
 
-        doThrow(new RuntimeException("User has invalid credential:" + INVALID_USER))
+        doThrow(new InvalidUserException("User has invalid credential:" + INVALID_USER))
                 .when(mockPomodoroServiceImpl).getMusicUrl(INVALID_USER);
 
 
@@ -179,7 +214,7 @@ public class PomodoraTasksApiControllerTests {
                 .andExpect(MockMvcResultMatchers.content().string(String.format("\"%s\"", musicURLString)));
 
         // Invalid user in Header
-        assertThrows (RuntimeException.class, () -> mockPomodoroServiceImpl.getMusicUrl(INVALID_USER));
+        assertThrows (InvalidUserException.class, () -> mockPomodoroServiceImpl.getMusicUrl(INVALID_USER));
 
     }
 }
