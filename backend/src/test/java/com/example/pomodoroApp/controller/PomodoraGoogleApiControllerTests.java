@@ -53,10 +53,15 @@ public class PomodoraGoogleApiControllerTests {
         String googleApURLString = "https://www.googleapis.com/calendar/v3/calendars/primary/events?&maxResults=10&timeMin=2023-11-0609:00:00";
         URL googleApiURL = new URL(googleApURLString);
 
-        when(mockPomodoroAppServiceImpl.getGoogleApiUrl(VALID_ACCESS_TOKEN)).thenReturn(googleApiURL);
+//        when(mockPomodoroAppServiceImpl.getGoogleApiUrl(VALID_ACCESS_TOKEN)).thenReturn(googleApiURL);
+//
+//        doThrow(new RuntimeException("User has invalid credential:" + INVALID_ACCESS_TOKEN))
+//                .when(mockPomodoroAppServiceImpl).getGoogleApiUrl(INVALID_ACCESS_TOKEN);
+
+        when (mockPomodoroAppServiceImpl.getGoogleApiCalendarEvents(VALID_ACCESS_TOKEN)).thenReturn("OK");
 
         doThrow(new RuntimeException("User has invalid credential:" + INVALID_ACCESS_TOKEN))
-                .when(mockPomodoroAppServiceImpl).getGoogleApiUrl(INVALID_ACCESS_TOKEN);
+                .when(mockPomodoroAppServiceImpl).getGoogleApiCalendarEvents(INVALID_ACCESS_TOKEN);
 
         this.mockMvcController.perform(
                         MockMvcRequestBuilders.get("/api/v1/events/").header("Authorization",
@@ -64,7 +69,7 @@ public class PomodoraGoogleApiControllerTests {
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
 //         Invalid token in Header
-        assertThrows(RuntimeException.class, () -> mockPomodoroAppServiceImpl.getGoogleApiUrl(INVALID_ACCESS_TOKEN));
+        assertThrows(RuntimeException.class, () -> mockPomodoroAppServiceImpl.getGoogleApiCalendarEvents(INVALID_ACCESS_TOKEN));
     }
 
     @Test
