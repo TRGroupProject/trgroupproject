@@ -15,14 +15,23 @@ const Card = styled.div<LayoutCardProps>`
   margin-top: ${(props) => (props.position === "top" ? "10px" : "50px")};
 `;
 
+const Title = styled.h2`
+  font-size: 24px;
+  color: #333;
+`;
+
 interface LayoutCardProps {
-  children: ReactElement[];
+  children: ReactElement | ReactElement[];
+  title: string;
   position?: "top" | "center";
 }
 
-const LayoutCard: React.FC<LayoutCardProps> = ({ children, position }) => {
+const LayoutCard: React.FC<LayoutCardProps> = ({ children, title, position }) => {
   return (
-    <Card position={position}>{children}</Card>
+    <Card position={position}>
+      <Title>{title}</Title>
+      {children}
+      </Card>
   );
 };
 
