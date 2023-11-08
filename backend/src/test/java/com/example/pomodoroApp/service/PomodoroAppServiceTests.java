@@ -54,7 +54,7 @@ public class PomodoroAppServiceTests {
         UserAccount userAccount = UserAccount.builder().googleUserId(userId)
                 .userEmail("blah@blah.com")
                 .userName("blah")
-                .userId(1l).build();
+                .build();
 
 
         when(mockPomodoroAppRepository.getTasksByGoogleUserId(userId)).thenReturn(tasks);
@@ -85,7 +85,7 @@ public class PomodoroAppServiceTests {
         UserAccount userAccount = UserAccount.builder().googleUserId(userId)
                 .userEmail("blah@blah.com")
                 .userName("blah")
-                .userId(1l).build();
+                .build();
 
         when(mockPomodoroAppRepository.findAllTasksCompleted(userId)).thenReturn(completedTasks);
         when(mockPomodoroUserRepository.getUserAccountByGoogleUserId(userId)).thenReturn(userAccount);
@@ -114,7 +114,7 @@ public class PomodoroAppServiceTests {
         UserAccount userAccount = UserAccount.builder().googleUserId(userId)
                 .userEmail("blah@blah.com")
                 .userName("blah")
-                .userId(1l).build();
+                .build();
 
         when(mockPomodoroAppRepository.findAllTasksUncompleted(userId)).thenReturn(uncompletedTasks);
         when(mockPomodoroUserRepository.getUserAccountByGoogleUserId(userId)).thenReturn(userAccount);

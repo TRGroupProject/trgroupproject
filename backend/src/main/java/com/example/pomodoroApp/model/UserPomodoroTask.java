@@ -31,7 +31,7 @@ public class UserPomodoroTask {
     @Column(updatable = true, nullable = false)
     String title;
 
-    @Column(updatable = true, nullable = false)
+    @Column(updatable = true, nullable = true)
     String description;
 
     @Column(updatable = true, nullable = false)

@@ -72,7 +72,7 @@ public class PomodoroServiceImplTests {
         userAccount = UserAccount.builder().googleUserId(VALID_USER)
                 .userEmail("blah@blah.com")
                 .userName("blah")
-                .userId(1l).build();
+                .build();
     }
 
 
