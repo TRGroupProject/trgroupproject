@@ -19,12 +19,14 @@ public class PomodoroTasksApiController {
     @Autowired
     PomodoroAppService pomodoroAppService;
 
+    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping(value = "/welcome")
     public ResponseEntity<String> welcome() {
         return new ResponseEntity<String>("Welcome to the Pomodoro API", HttpStatus.OK);
     }
 
 
+    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping(value = "/")
     // Get a list of all tasks from out database:
     //  @ user - unique google id of the user
@@ -63,6 +65,7 @@ public class PomodoroTasksApiController {
     }
 
 
+    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping(value = "/music")
     public ResponseEntity<URL> getMusicURL(@RequestHeader("user") String googleUserId) {
 
@@ -71,6 +74,7 @@ public class PomodoroTasksApiController {
     }
 
 
+    @CrossOrigin(origins = "http://localhost:5173")
     @PatchMapping("/{taskId}")
     // Update the task in our database
     // Do we expect a task in the body, or a field to update?
