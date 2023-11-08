@@ -24,6 +24,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -121,7 +122,7 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
 
 
     @Override
-    public String saveGoogleApiCalendarEvents(String authToken) {
+    public String saveGoogleApiCalendarEvents(String authToken, String googleUserId) {
         try {
             LocalDateTime now = LocalDateTime.now();
 
@@ -153,10 +154,12 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
 
                 ArrayList<UserPomodoroTask> tasksList = new ArrayList<>();
 
+                formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
                 for (int i = 0; i < eventsList.size(); i++) {
                     JsonObject event = eventsList.get(i).getAsJsonObject();
                     JsonObject start = event.get("start").getAsJsonObject();
-                    String startDate = start.get("date").getAsString();
+                    String startDate = start.get("dateTime").getAsString();
                     JsonObject organizer = event.get("organizer").getAsJsonObject();
 
                     UserPomodoroTask newTask;
@@ -164,18 +167,20 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
                     JsonElement descriptionElement = event.get("description");
                     if (descriptionElement == null) {
                         newTask = UserPomodoroTask.builder()
-                                .googleUserId(organizer.get("email").getAsString())
+                                .googleUserId(googleUserId)
                                 .googleEventId(event.get("iCalUID").getAsString())
                                 .title(event.get("summary").getAsString())
-                                .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
+                                .calendarStartDateTime(LocalDateTime.parse(startDate,formatter))
+//                                .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
                                 .build();
                     } else {
                         newTask = UserPomodoroTask.builder()
-                                .googleUserId(organizer.get("email").getAsString())
+                                .googleUserId(googleUserId)
                                 .googleEventId(event.get("iCalUID").getAsString())
                                 .title(event.get("summary").getAsString())
                                 .description(event.get("description").getAsString())
-                                .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
+                                .calendarStartDateTime(LocalDateTime.parse(startDate,formatter))
+//                                .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
                                 .build();
                     }
 
