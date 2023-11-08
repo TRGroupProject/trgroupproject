@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import {Router} from "./components/router/Router";
 import { GoogleOAuthProvider } from '@react-oauth/google';
