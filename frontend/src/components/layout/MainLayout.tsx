@@ -1,12 +1,11 @@
-import * as React from 'react';
-import NavHeader from '../header/NavHeader';
+import NavBar from '../features/NavBar/NavBar';
 import { Outlet } from 'react-router-dom';
-
+import { routes } from '../router/Routes';
 
 const MainLayout: React.FC = () => {
   return (
     <div>
-      <NavHeader />
+      <NavBar heading="Pomodoro App" routes={routes} />
       <Outlet />
     </div>
   );
