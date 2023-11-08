@@ -1,15 +1,9 @@
 import { useEffect, useState } from "react";
-import styled from "@emotion/styled";
 import { useGoogleLogin } from "@react-oauth/google";
 import Button from "../features/Buttons/Button";
 import googleIcon from "../../assets/google-icon.png";
 import LayoutCard from "../features/Layout/LayoutCard";
 import { useNavigate } from "react-router-dom";
-
-const Title = styled.h2`
-  font-size: 24px;
-  color: #333;
-`;
 
 const Home: React.FC = () => {
   const navigate = useNavigate()
@@ -18,8 +12,7 @@ const Home: React.FC = () => {
   const login = useGoogleLogin({
     onSuccess: (codeResponse) => {
       console.log(codeResponse);
-      setCredentials(codeResponse.token_type + codeResponse.access_token);
-      navigate("/tasks");
+      setCredentials(codeResponse.access_token);
     },
     scope: 'https://www.googleapis.com/auth/calendar.readonly',
     onError: (error) => console.error('Login Authentication Failed', error),
@@ -54,12 +47,12 @@ const Home: React.FC = () => {
 
     if (credentials) {
       fetchData();
+      navigate("/tasks");
     }
-  }, [credentials]);
+  }, [credentials, navigate]);
 
   return (
-    <LayoutCard>
-      <Title>Login with Google</Title>
+    <LayoutCard title="Login with Google">
       <Button icon={googleIcon} handleOnClick={() => login()}>
         Authenticate
       </Button>
