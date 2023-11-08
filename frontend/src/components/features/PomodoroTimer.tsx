@@ -4,7 +4,7 @@ import Button from './Buttons/Button';
 import styled from "@emotion/styled";
 import Text from '../features/Text/Text';
 import tomato from '../../images/tomato-icon.png';
-import { TasksContext } from '../../hooks/useContext/taskcontext';
+import { TasksContext } from '../../hooks/useContext/taskContext';
 import { useParams } from 'react-router-dom';
 
 type UserPomodoroTask = {
@@ -21,6 +21,8 @@ type UserPomodoroTask = {
 function PomodoroTimer() {
   const tasks = useContext(TasksContext);
   const { taskId } = useParams<string>();
+
+  const endpoint = import.meta.env.VITE_PATCH_API_ENDPOINT_DEV;
 
   const [isPomodoro, setIsPomodoro] = useState(true);
 
@@ -128,19 +130,13 @@ function PomodoroTimer() {
          id = parseInt(taskId, 10);
       }
 
-      const headers = {
-        user: 'VALID_USER_ID',
-      };
-
-      console.log("id", id)
-
       try {
-        const url = `http://localhost:8080/api/v1/tests/${id}`;
+        const url = `${endpoint}${id}`;
         const requestOptions: RequestInit = {
           method: 'PATCH',
           headers: {
+            'User': task?.googleUserId || '',
             'Content-Type': 'application/json',
-            ...headers
           },
           body: JSON.stringify(updatedTask),
         };
@@ -151,8 +147,8 @@ function PomodoroTimer() {
           throw new Error(`Error Status: ${response.status}`);
         }
 
-        // const updatedData = await response.json();
-        // console.log("updatedData", updatedData)
+        const updatedData = await response.json();
+        console.log("updatedData", updatedData)
       } catch (err) {
         console.log("err", err)
       }
@@ -217,21 +213,21 @@ function PomodoroTimer() {
       </p>
       {showRestartButton ?
       <ButtonWrapper>
-        <Button handleOnClick={restartTimer} icon={tomato} children="RESTART" />
+        <Button handleOnClick={restartTimer} icon={tomato} children="RESTART TASK" />
       </ButtonWrapper>
       :
       <>
         <ButtonWrapper>
-          <Button handleOnClick={stopTimer} icon={tomato} children="STOP"  />
+          <Button handleOnClick={stopTimer} icon={tomato} children="END TASK"  />
         </ButtonWrapper>
 
         {showResumeButton ?
           <ButtonWrapper>
-            <Button handleOnClick={resumeTimer} icon={tomato} children="RESUME" />
+            <Button handleOnClick={resumeTimer} icon={tomato} children="RESUME TASK" />
           </ButtonWrapper>
           :
           <ButtonWrapper>
-            <Button handleOnClick={pauseTimer} icon={tomato} children="PAUSE" />
+            <Button handleOnClick={pauseTimer} icon={tomato} children="PAUSE TASK" />
           </ButtonWrapper>
         }
 

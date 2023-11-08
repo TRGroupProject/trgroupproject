@@ -11,14 +11,23 @@ type UserPomodoroTask = {
     pomodoroEndDateTime: string | null;
   }
 
-function useFetchTasks(endpoint : string) {
+function useFetchTasks(endpoint : string, authorization: string, user: string) {
   const [data, setData] = useState<UserPomodoroTask[]>([]);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch(endpoint);
+
+        const fetchHeaders = {
+          'Authorization': authorization,
+          'User': user,
+        };
+
+        const response = await fetch(endpoint, {
+          headers: fetchHeaders
+        });
+
         if (!response.ok) {
           throw new Error(`Error Status: ${response.status}`);
         }
@@ -31,7 +40,7 @@ function useFetchTasks(endpoint : string) {
     }
 
     fetchData();
-  }, [endpoint]);
+  }, [endpoint, authorization, user]);
 
   return { data, error };
 }
