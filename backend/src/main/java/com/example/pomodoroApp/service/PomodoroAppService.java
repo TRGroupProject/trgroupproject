@@ -16,7 +16,7 @@ public interface PomodoroAppService {
 
     public List<UserPomodoroTask> getAllUncompletedTasksByGoogleUserId(String googleUserId);
 
-    public URL getGoogleApiUrl(String uid);
+//    public URL getGoogleApiUrl(String uid);
 
     URL getMusicUrl(String uid);
 

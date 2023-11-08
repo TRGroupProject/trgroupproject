@@ -17,11 +17,8 @@ import java.math.BigInteger;
 @Builder
 public class UserAccount {
 
-    @Id
-    @GeneratedValue
-    @Column(updatable = false, nullable = false)
-    Long userId;
 
+    @Id
     @Column(updatable = false, nullable = false)
     String googleUserId;
 
