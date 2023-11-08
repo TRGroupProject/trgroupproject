@@ -28,11 +28,21 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler  {
         return handleExceptionInternal(exception,
                 request.getDescription(false) + " : " +  exception.getMessage(),
                 new HttpHeaders(),
-                HttpStatus.FORBIDDEN, request);
+                HttpStatus.UNAUTHORIZED, request);
 
 //        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
+
+    @ExceptionHandler({IllegalArgumentException.class})
+    protected ResponseEntity<Object> handleIllegalArgumentException (IllegalArgumentException exception, WebRequest request) {
+        return handleExceptionInternal(exception,
+                request.getDescription(false) + " : " +  exception.getMessage(),
+                new HttpHeaders(),
+                HttpStatus.NOT_ACCEPTABLE, request);
+
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 
     @ExceptionHandler(NoSuchElementException.class)
     protected ResponseEntity<Object> handleNoSuchElementException (NoSuchElementException exception, WebRequest request) {
