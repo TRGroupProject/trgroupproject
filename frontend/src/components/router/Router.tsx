@@ -5,7 +5,7 @@ import TasksList from '../pages/TasksList';
 import Report from '../pages/Reports/Report';
 import Task from '../pages/Task';
 import NotFound from '../notFound/NotFound';
-import MainLayout from '../layout/MainLayout';
+import MainLayout from '../MainLayout/MainLayout';
 import LoggedInOnly from './AuthenticatedRoute';
 
 export const Router: React.FC = () => (

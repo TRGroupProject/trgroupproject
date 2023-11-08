@@ -134,7 +134,7 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder(new URI(calendarApiUrl))
                     .header("Content-Type", "application/JSON")
-                    .header("Authorization", authToken)
+                    .header("Authorization", "Bearer " + authToken)
                     .timeout(Duration.of(5, ChronoUnit.SECONDS))
                     .GET()
                     .build();
@@ -144,44 +144,52 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
 
             String stringResponse = response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS);
 
-            JsonObject eventsData = JsonParser.parseString(stringResponse).getAsJsonObject();
-            JsonArray eventsList = eventsData.get("items").getAsJsonArray();
+            int status = response.get(5, TimeUnit.SECONDS).statusCode();
 
-            ArrayList<UserPomodoroTask> tasksList = new ArrayList<>();
 
-            for (int i = 0; i < eventsList.size(); i++) {
-                JsonObject event = eventsList.get(i).getAsJsonObject();
-                JsonObject start = event.get("start").getAsJsonObject();
-                String startDate = start.get("date").getAsString();
-                JsonObject organizer = event.get("organizer").getAsJsonObject();
+            if (status == 200) {
+                JsonObject eventsData = JsonParser.parseString(stringResponse).getAsJsonObject();
+                JsonArray eventsList = eventsData.get("items").getAsJsonArray();
 
-                UserPomodoroTask newTask;
+                ArrayList<UserPomodoroTask> tasksList = new ArrayList<>();
 
-                JsonElement descriptionElement = event.get("description");
-                if (descriptionElement == null) {
-                    newTask = UserPomodoroTask.builder()
-                            .googleUserId(organizer.get("email").getAsString())
-                            .googleEventId(event.get("iCalUID").getAsString())
-                            .title(event.get("summary").getAsString())
-                            .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
-                            .build();
-                } else {
-                    newTask = UserPomodoroTask.builder()
-                            .googleUserId(organizer.get("email").getAsString())
-                            .googleEventId(event.get("iCalUID").getAsString())
-                            .title(event.get("summary").getAsString())
-                            .description(event.get("description").getAsString())
-                            .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
-                            .build();
+                for (int i = 0; i < eventsList.size(); i++) {
+                    JsonObject event = eventsList.get(i).getAsJsonObject();
+                    JsonObject start = event.get("start").getAsJsonObject();
+                    String startDate = start.get("date").getAsString();
+                    JsonObject organizer = event.get("organizer").getAsJsonObject();
+
+                    UserPomodoroTask newTask;
+
+                    JsonElement descriptionElement = event.get("description");
+                    if (descriptionElement == null) {
+                        newTask = UserPomodoroTask.builder()
+                                .googleUserId(organizer.get("email").getAsString())
+                                .googleEventId(event.get("iCalUID").getAsString())
+                                .title(event.get("summary").getAsString())
+                                .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
+                                .build();
+                    } else {
+                        newTask = UserPomodoroTask.builder()
+                                .googleUserId(organizer.get("email").getAsString())
+                                .googleEventId(event.get("iCalUID").getAsString())
+                                .title(event.get("summary").getAsString())
+                                .description(event.get("description").getAsString())
+                                .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
+                                .build();
+                    }
+
+                    pomodoroAppRepository.save(newTask);
+                    tasksList.add(newTask);
+
                 }
-
-                pomodoroAppRepository.save(newTask);
-                tasksList.add(newTask);
+                return tasksList.toString();
+            }  else {
+                throw new RuntimeException(stringResponse);
             }
 
-            return tasksList.toString();
 
-        } catch (JsonSyntaxException e) {
+            } catch (JsonSyntaxException e) {
             logger.error("Error parsing JSON response", e);
             throw new RuntimeException("Error parsing JSON response", e);
         } catch (Exception e) {
@@ -200,7 +208,7 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder(new URI(googleUserApiUrl))
                     .header("Content-Type", "application/JSON")
-                    .header("Authorization", authToken)
+                    .header("Authorization", "Bearer " + authToken)
                     .timeout(Duration.of(5, ChronoUnit.SECONDS))
                     .GET()
                     .build();
@@ -209,21 +217,28 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
                     HttpResponse.BodyHandlers.ofString());
 
             String stringResponse = response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS);
+            int status = response.get(5, TimeUnit.SECONDS).statusCode();
 
-            JsonObject jsonResponse = JsonParser.parseString(stringResponse).getAsJsonObject();
 
-            UserAccount user = UserAccount.builder()
-                    .googleUserId(jsonResponse.get("sub").getAsString())
-                    .userEmail(jsonResponse.get("email").getAsString())
-                    .userName(jsonResponse.get("name").getAsString())
-                    .build();
+            if (status == 200) {
+                JsonObject jsonResponse = JsonParser.parseString(stringResponse).getAsJsonObject();
 
-            pomodoroUserRepository.save(user);
 
-            return user;
+                UserAccount user = UserAccount.builder()
+                        .googleUserId(jsonResponse.get("sub").getAsString())
+                        .userEmail(jsonResponse.get("email").getAsString())
+                        .userName(jsonResponse.get("name").getAsString())
+                        .build();
+
+                pomodoroUserRepository.save(user);
+
+                return user;
+            } else {
+                throw new RuntimeException(stringResponse);
+            }
 
         } catch (Exception e) {
-            throw new RuntimeException("Error while fetching user information", e);
+            throw new RuntimeException("Error while fetching user information",e);
         }
     }
 }
