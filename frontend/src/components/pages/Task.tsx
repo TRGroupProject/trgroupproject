@@ -1,9 +1,12 @@
-import * as React from 'react';
+import LayoutCard from '../features/Layout/LayoutCard';
 import PomodoroTimer from '../features/PomodoroTimer';
 
 const Task: React.FC = () => {
-
-    return <div><PomodoroTimer /></div>;
+    return (
+        <LayoutCard title="Let's focus!">
+            <PomodoroTimer />
+        </LayoutCard>
+    );
 };
 
 export default Task;

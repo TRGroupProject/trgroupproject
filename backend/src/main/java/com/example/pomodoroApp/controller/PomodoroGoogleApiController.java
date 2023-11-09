@@ -3,12 +3,10 @@ package com.example.pomodoroApp.controller;
 import com.example.pomodoroApp.model.UserAccount;
 import com.example.pomodoroApp.service.PomodoroAppService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -31,9 +29,10 @@ public class PomodoroGoogleApiController {
 
         @CrossOrigin(origins = "http://localhost:5173")
         @PostMapping("/")
-        public ResponseEntity<String> saveGoogleCalendarEvents(@RequestHeader("Authorization") String authToken)
+        public ResponseEntity<String> saveGoogleCalendarEvents(@RequestHeader("Authorization") String authToken,
+                                                               @RequestHeader("user") String googleUserId)
                 throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
-                String savedTasks = pomodoroAppService.saveGoogleApiCalendarEvents(authToken);
+                String savedTasks = pomodoroAppService.saveGoogleApiCalendarEvents(authToken, googleUserId);
 
                 return new ResponseEntity<>(savedTasks, HttpStatus.CREATED);
         }

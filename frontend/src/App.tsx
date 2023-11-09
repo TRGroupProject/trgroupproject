@@ -1,8 +1,9 @@
-import { BrowserRouter } from 'react-router-dom';
-import { Router } from './components/router/Router';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import { TasksContext } from './hooks/useContext/taskContext';
-import { useEffect, useState } from 'react';
+import { BrowserRouter } from "react-router-dom";
+import {Router} from "./components/router/Router";
+import { GoogleOAuthProvider, } from '@react-oauth/google';
+import { TasksContext } from "./hooks/useContext/taskcontext";
+import { useEffect, useState } from "react";
+// import useFetchTasks from "./hooks/useFetchTasks";
 
 const client_id = import.meta.env.VITE_REACT_APP_CLIENT_ID;
 const endpoint = import.meta.env.VITE_FETCH_API_ENDPOINT_DEV;
@@ -16,11 +17,12 @@ type UserPomodoroTask = {
   calendarStartDateTime: string;
   pomodoroStartDateTime: string | null;
   pomodoroEndDateTime: string | null;
-};
+}
 
 const App: React.FC = () => {
+
   useEffect(() => {
-    document.title = 'Pomodoro App';
+    document.title="Pomodoro App";
   });
 
   const [ tasks, setTasks] = useState<UserPomodoroTask[]>([])
@@ -68,7 +70,7 @@ const App: React.FC = () => {
         </GoogleOAuthProvider>
       </TasksContext.Provider>
     </>
-  );
-};
+  )
+}
 
 export default App;
