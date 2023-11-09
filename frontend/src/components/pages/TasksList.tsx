@@ -11,7 +11,7 @@ import tomato from "../../images/tomato-icon.png";
 const StyledText = styled(Text)``;
 
 const TaskList: React.FC = () => {
-  const tasks = useContext(TasksContext);
+  const {tasks, setFilter} = useContext(TasksContext);
 
   const TaskContainer = styled.div`
     display: flex;
@@ -43,25 +43,43 @@ const TaskList: React.FC = () => {
     margin-top: 1em;
   `;
 
+  const ButtonWrapper = styled.div`
+  display: flex;
+  margin: 5px;
+`;
+
   console.log("tasks", tasks);
 
   return (
+<>
+    <LayoutCard title="Filter">
+    <ButtonWrapper>
+      <Button icon={tomato} children="completed" handleOnClick={() => setFilter('completed')} />
+      </ButtonWrapper>
+      <ButtonWrapper>
+      <Button icon={tomato} children="uncompleted" handleOnClick={() => setFilter('uncompleted')} />
+      </ButtonWrapper>
+      <ButtonWrapper>
+      <Button icon={tomato} children="all" handleOnClick={() => setFilter('all')} />
+    </ButtonWrapper>
+    </LayoutCard>
+
     <LayoutCard title="Tasks">
       {tasks?.map((task) => (
         <TaskContainer key={task.taskId}>
           <StyledText children={task.title} type="heading" />
           <DescriptionContainer>
-          {task.description && (
-            <StyledText children={task.description} type="body" />
-          )}
-          <DateTimeText
-            dateTime={new Date(task.calendarStartDateTime)}
-            format={"time"}
-          />
-          <DateTimeText
-            dateTime={new Date(task.calendarStartDateTime)}
-            format={"date"}
-          />
+            {task.description && (
+              <StyledText children={task.description} type="body" />
+            )}
+            <DateTimeText
+              dateTime={new Date(task.calendarStartDateTime)}
+              format={"time"}
+            />
+            <DateTimeText
+              dateTime={new Date(task.calendarStartDateTime)}
+              format={"date"}
+            />
           </DescriptionContainer>
           <ButtonContainer>
             <NavLink to={`/tasks/${task.taskId}`}>
@@ -75,6 +93,8 @@ const TaskList: React.FC = () => {
         </TaskContainer>
       ))}
     </LayoutCard>
+
+    </>
   );
 };
 

@@ -19,7 +19,7 @@ type UserPomodoroTask = {
 }
 
 function PomodoroTimer() {
-  const tasks = useContext(TasksContext);
+  const {tasks} = useContext(TasksContext);
   const { taskId } = useParams<string>();
 
   const endpoint = import.meta.env.VITE_PATCH_API_ENDPOINT_DEV;

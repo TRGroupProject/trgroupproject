@@ -11,4 +11,12 @@ import { createContext } from "react";
     pomodoroEndDateTime: string | null;
   }
 
-export const TasksContext = createContext<UserPomodoroTask[]>([]);
+  type TasksContextType = {
+    tasks: UserPomodoroTask[];
+    setFilter: (type: string) => void;
+  };
+
+  export const TasksContext = createContext<TasksContextType>({
+    tasks: [],
+    setFilter: () => {},
+  });
