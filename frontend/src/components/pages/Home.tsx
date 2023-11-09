@@ -18,14 +18,17 @@ const Home: React.FC = () => {
   const login = useGoogleLogin({
     onSuccess: (codeResponse) => {
       console.log(codeResponse);
-      setCredentials(codeResponse.token_type + codeResponse.access_token);
-      navigate("/tasks");
+      setCredentials(codeResponse.access_token);
+      // navigate("/tasks");
     },
     scope: 'https://www.googleapis.com/auth/calendar.readonly',
     onError: (error) => console.error('Login Authentication Failed', error),
   });
 
   useEffect(() => {
+
+    console.log("here")
+
     const fetchData = async () => {
       const url = 'http://localhost:8080/api/v1/events/users';
       const headers = new Headers();
@@ -44,7 +47,7 @@ const Home: React.FC = () => {
         }
 
         const data = await response.json();
-        console.log('data', data);
+        console.log('events data', data);
 
         return data;
       } catch (error) {
@@ -54,8 +57,9 @@ const Home: React.FC = () => {
 
     if (credentials) {
       fetchData();
+      navigate("/tasks");
     }
-  }, [credentials]);
+  }, [credentials, navigate]);
 
   return (
     <LayoutCard>
