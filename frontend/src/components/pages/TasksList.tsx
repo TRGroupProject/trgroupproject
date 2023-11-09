@@ -10,7 +10,7 @@ import { TasksContext } from '../../hooks/useContext/taskContext';
 
 const TaskList: React.FC = () => {
 
-  const tasks = useContext(TasksContext);
+  const {tasks, setFilter} = useContext(TasksContext);
 
   const TaskContainer = styled.div`
     border: 1px solid red;
@@ -21,9 +21,22 @@ const TaskList: React.FC = () => {
     flex-direction: column;
 `;
 
-console.log("tasks", tasks)
+  const ButtonWrapper = styled.div`
+    display: flex;
+    margin: 5px;
+  `;
 
   return <div>
+  <ButtonWrapper>
+    <Button icon={tomato} children="completed" handleOnClick={() => setFilter('completed')} />
+    </ButtonWrapper>
+    <ButtonWrapper>
+    <Button icon={tomato} children="uncompleted" handleOnClick={() => setFilter('uncompleted')} />
+    </ButtonWrapper>
+    <ButtonWrapper>
+    <Button icon={tomato} children="all" handleOnClick={() => setFilter('all')} />
+  </ButtonWrapper>
+
   {tasks?.map((task) => (
     <>
       <TaskContainer key={task.taskId}>
