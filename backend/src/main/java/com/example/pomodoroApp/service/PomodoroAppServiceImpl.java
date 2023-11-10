@@ -24,7 +24,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -123,6 +122,10 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
 
     @Override
     public String saveGoogleApiCalendarEvents(String authToken, String googleUserId) {
+        if (!isValidUid(googleUserId)) {
+            throw new InvalidUserException("User ID is not valid");
+        }
+
         try {
             LocalDateTime now = LocalDateTime.now();
 
@@ -147,64 +150,78 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
 
             int status = response.get(5, TimeUnit.SECONDS).statusCode();
 
-
             if (status == 200) {
-                JsonObject eventsData = JsonParser.parseString(stringResponse).getAsJsonObject();
-                JsonArray eventsList = eventsData.get("items").getAsJsonArray();
 
-                ArrayList<UserPomodoroTask> tasksList = new ArrayList<>();
+                List<UserPomodoroTask> tasksFromGoogle = getTasksFromGoogleResponse(stringResponse, googleUserId);
 
-                formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                saveTasksFromGoogle (tasksFromGoogle);
 
-                for (int i = 0; i < eventsList.size(); i++) {
-                    JsonObject event = eventsList.get(i).getAsJsonObject();
-                    JsonObject start = event.get("start").getAsJsonObject();
-                    String startDate = start.get("dateTime").getAsString();
-                    JsonObject organizer = event.get("organizer").getAsJsonObject();
+                return tasksFromGoogle.toString();
 
-                    UserPomodoroTask newTask;
-
-                    JsonElement descriptionElement = event.get("description");
-                    if (descriptionElement == null) {
-                        newTask = UserPomodoroTask.builder()
-                                .googleUserId(googleUserId)
-                                .googleEventId(event.get("iCalUID").getAsString())
-                                .title(event.get("summary").getAsString())
-                                .calendarStartDateTime(LocalDateTime.parse(startDate,formatter))
-//                                .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
-                                .build();
-                    } else {
-                        newTask = UserPomodoroTask.builder()
-                                .googleUserId(googleUserId)
-                                .googleEventId(event.get("iCalUID").getAsString())
-                                .title(event.get("summary").getAsString())
-                                .description(event.get("description").getAsString())
-                                .calendarStartDateTime(LocalDateTime.parse(startDate,formatter))
-//                                .calendarStartDateTime(LocalDateTime.parse(startDate + "T00:00:00"))
-                                .build();
-                    }
-
-                    pomodoroAppRepository.save(newTask);
-                    tasksList.add(newTask);
-
-                }
-                return tasksList.toString();
             }  else {
                 throw new RuntimeException(stringResponse);
             }
 
-
-            } catch (JsonSyntaxException e) {
-            logger.error("Error parsing JSON response", e);
-            throw new RuntimeException("Error parsing JSON response", e);
         } catch (Exception e) {
             logger.error("An unexpected error occurred", e);
             throw new RuntimeException("An unexpected error occurred", e);
         }
     }
 
+    private void saveTasksFromGoogle(List<UserPomodoroTask> tasksFromGoogleEvents) {
+
+        tasksFromGoogleEvents.forEach (task -> {
+            // Only create new record if it's not already in the db
+            if (pomodoroAppRepository.getTaskCountGivenGoogleEventIdAndGoogleUserId(
+                    task.getGoogleEventId(),
+                    task.getGoogleUserId()) == 0) {
+                System.out.println("Storing task:" +  task.toString());
+                pomodoroAppRepository.save(task);
+            }
+        });
+    }
+
+    private ArrayList<UserPomodoroTask> getTasksFromGoogleResponse(String stringResponse, String googleUserId) {
+
+        try {
+            JsonObject eventsData = JsonParser.parseString(stringResponse).getAsJsonObject();
+            JsonArray eventsList = eventsData.get("items").getAsJsonArray();
+
+            ArrayList<UserPomodoroTask> tasksList = new ArrayList<>();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+            for (int i = 0; i < eventsList.size(); i++) {
+                JsonObject event = eventsList.get(i).getAsJsonObject();
+                JsonObject start = event.get("start").getAsJsonObject();
+                String startDate = start.get("dateTime").getAsString();
+                JsonObject organizer = event.get("organizer").getAsJsonObject();
+
+                UserPomodoroTask newTask;
+
+                JsonElement descriptionElement = event.get("description");
+
+                newTask = UserPomodoroTask.builder()
+                        .googleUserId(googleUserId)
+                        .googleEventId(event.get("iCalUID").getAsString())
+                        .title(event.get("summary").getAsString())
+                        .description(descriptionElement == null ? null : descriptionElement.getAsString())
+                        .calendarStartDateTime(LocalDateTime.parse(startDate, formatter))
+                        .build();
+
+                tasksList.add(newTask);
+
+            }
+            return tasksList;
+
+        } catch (JsonSyntaxException e) {
+            logger.error("Error parsing JSON response", e);
+            throw new RuntimeException("Error parsing JSON response", e);
+        }
+    }
+
     @Override
-    public UserAccount saveGoogleApiUserInfo(String authToken) throws ExecutionException, InterruptedException, TimeoutException, URISyntaxException {
+    public UserAccount saveGoogleApiUserInfo(String authToken) {
 
         try {
 
@@ -226,18 +243,8 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
 
 
             if (status == 200) {
-                JsonObject jsonResponse = JsonParser.parseString(stringResponse).getAsJsonObject();
+                return getUserFromGoogleResponse(stringResponse);
 
-
-                UserAccount user = UserAccount.builder()
-                        .googleUserId(jsonResponse.get("sub").getAsString())
-                        .userEmail(jsonResponse.get("email").getAsString())
-                        .userName(jsonResponse.get("name").getAsString())
-                        .build();
-
-                pomodoroUserRepository.save(user);
-
-                return user;
             } else {
                 throw new RuntimeException(stringResponse);
             }
@@ -245,5 +252,20 @@ public class PomodoroAppServiceImpl implements PomodoroAppService {
         } catch (Exception e) {
             throw new RuntimeException("Error while fetching user information",e);
         }
+    }
+
+    private UserAccount getUserFromGoogleResponse(String stringResponse) {
+        JsonObject jsonResponse = JsonParser.parseString(stringResponse).getAsJsonObject();
+
+
+        UserAccount user = UserAccount.builder()
+                .googleUserId(jsonResponse.get("sub").getAsString())
+                .userEmail(jsonResponse.get("email").getAsString())
+                .userName(jsonResponse.get("name").getAsString())
+                .build();
+
+        pomodoroUserRepository.save(user);
+
+        return user;
     }
 }

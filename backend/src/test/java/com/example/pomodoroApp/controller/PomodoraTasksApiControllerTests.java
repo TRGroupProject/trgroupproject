@@ -162,6 +162,32 @@ public class PomodoraTasksApiControllerTests {
         assertThrows (InvalidUserException.class, () -> mockPomodoroServiceImpl.getAllTasksByGoogleUserId(INVALID_USER));
     }
 
+
+
+    @Test
+    public void testGetGoogleCalendarEvents() throws Exception {
+
+        when(mockPomodoroServiceImpl.getAllTasksByGoogleUserId(VALID_USER)).thenReturn(allTasks);
+        when (mockPomodoroServiceImpl.saveGoogleApiCalendarEvents(VALID_AUTH, VALID_USER)).thenReturn("OK");
+
+        doThrow(new RuntimeException("User has invalid credential:" + INVALID_AUTH))
+                .when(mockPomodoroServiceImpl).saveGoogleApiCalendarEvents(INVALID_AUTH, VALID_USER);
+
+        this.mockMvcController.perform(
+                        MockMvcRequestBuilders.get("/api/v1/tasks/")
+                                .header("authorization", VALID_AUTH)
+                                .header("user", VALID_USER)
+                                .queryParam("tasks", "all")
+                                .queryParam("google", "true"))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+
+        verify(mockPomodoroServiceImpl, times(1)).saveGoogleApiCalendarEvents(VALID_AUTH, VALID_USER);
+
+//         Invalid token in Header
+        assertThrows(RuntimeException.class, () -> mockPomodoroServiceImpl.saveGoogleApiCalendarEvents(INVALID_AUTH, VALID_USER));
+    }
+
+
     @Test
     public void testUpdateTasks() throws Exception {
 
