@@ -26,14 +26,4 @@ public class PomodoroGoogleApiController {
 
                 return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
         }
-
-        @CrossOrigin(origins = "http://localhost:5173")
-        @PostMapping("/")
-        public ResponseEntity<String> saveGoogleCalendarEvents(@RequestHeader("Authorization") String authToken,
-                                                               @RequestHeader("user") String googleUserId)
-                throws URISyntaxException, ExecutionException, InterruptedException, TimeoutException {
-                String savedTasks = pomodoroAppService.saveGoogleApiCalendarEvents(authToken, googleUserId);
-
-                return new ResponseEntity<>(savedTasks, HttpStatus.CREATED);
-        }
 }

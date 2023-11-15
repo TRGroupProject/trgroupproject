@@ -15,6 +15,11 @@ public interface PomodoroAppRepository extends CrudRepository<UserPomodoroTask, 
 
     public UserPomodoroTask getTasksByGoogleEventId(String googleEventId);
 
+    @Query("SELECT COUNT (*) FROM UserPomodoroTask u WHERE u.googleEventId = :googleEventId and u.googleUserId = :googleUserId")
+    public int  getTaskCountGivenGoogleEventIdAndGoogleUserId
+            (@Param("googleEventId") String googleEventId,
+             @Param("googleUserId")String googleUserId);
+
     @Query("SELECT u FROM UserPomodoroTask u WHERE u.pomodoroEndDateTime = null and u.googleUserId = :googleUserId")
     public List<UserPomodoroTask> findAllTasksUncompleted(@Param("googleUserId") String googleUserId);
 
